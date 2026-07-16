@@ -19,17 +19,32 @@ export type JourneyStage = {
   processingSequence: string[]
 }
 
+export type JourneyState =
+  | 'welcome'
+  | 'lobbyCircle'
+  | 'checkInCircle'
+  | 'checkInProcessing'
+  | 'securityCircle'
+  | 'securityProcessing'
+  | 'loungeCircle'
+  | 'nowBoarding'
+  | 'boardingCircle'
+  | 'boardingProcessing'
+  | 'onboard'
+
+type SecurityRoute = 'express' | 'standard' | null
+
 const stages: JourneyStage[] = [
   {
     id: 0,
     kind: 'welcome',
     routeLabel: 'Start',
     icon: 'mdi-rocket-launch-outline',
-    locationLead: 'Good morning, Pablo.',
-    location: 'Welcome to your Meridian Flight',
-    destination: 'Meridian Passenger Lobby Entrance',
+    locationLead: '',
+    location: 'Welcome to Meridian Flight',
+    destination: 'Passenger Lobby Circle',
     destinationLabel: 'Begin at',
-    instruction: 'Begin your arrival once you reach the entrance to the Meridian Passenger Lobby.',
+    instruction: 'Head over to the Passenger Lobby Circle and tap Begin Arrival once you are there.',
     supportingDetail: 'Flight M102  •  Launch 10:45 AM  •  Vehicle Aurora 07',
     actionLabel: 'Begin Arrival',
     processingSequence: [],
@@ -38,56 +53,39 @@ const stages: JourneyStage[] = [
     id: 1,
     kind: 'journey',
     routeLabel: 'Lobby',
-    icon: 'mdi-office-building-marker-outline',
-    locationLead: 'You are at',
-    location: 'Meridian Passenger Lobby',
-    destination: 'Counter B',
+    icon: 'mdi-circle-outline',
+    locationLead: '',
+    location: 'Passenger Lobby Circle',
+    destination: 'Check-in Circle B',
     destinationLabel: 'Next',
-    instruction: 'Proceed to Counter B.',
-    supportingDetail: 'Approximately 2 minutes away.',
-    actionLabel: 'Begin Check-in',
-    processingSequence: [
-      'Verifying identity',
-      'Identity confirmed',
-      'Registering baggage',
-      'Baggage accepted',
-      'Confirming travel clearance',
-      'Check-in complete',
-    ],
+    instruction: '',
+    actionLabel: null,
+    processingSequence: [],
   },
   {
     id: 2,
     kind: 'journey',
     routeLabel: 'Check-in',
     icon: 'mdi-account-check-outline',
-    locationLead: 'You are at',
-    location: 'Check-in Counter B',
-    destination: 'Terminal C Security',
-    destinationLabel: 'Next',
-    completionMessage: 'Check-in complete',
-    instruction: 'Follow the blue guidance line.',
-    requiredItems: ['Government ID', 'Boarding Credential'],
-    actionLabel: 'Begin Security',
-    processingSequence: [
-      'Validating boarding credential',
-      'Credential confirmed',
-      'Completing screening',
-      'Security cleared',
-    ],
+    locationLead: '',
+    location: 'Check-in Circle B',
+    destination: '',
+    destinationLabel: '',
+    instruction: '',
+    actionLabel: null,
+    processingSequence: [],
   },
   {
     id: 3,
     kind: 'journey',
     routeLabel: 'Security',
     icon: 'mdi-shield-check-outline',
-    locationLead: 'You are at',
-    location: 'Terminal C Security',
-    destination: 'Departure Lounge C4',
-    destinationLabel: 'Next',
-    completionMessage: 'Security cleared',
-    instruction: 'Follow the blue guidance line.',
-    supportingDetail: 'Approximately 4 minutes away.',
-    actionLabel: 'Continue to Lounge',
+    locationLead: '',
+    location: 'Security Circle',
+    destination: '',
+    destinationLabel: '',
+    instruction: '',
+    actionLabel: null,
     processingSequence: [],
   },
   {
@@ -95,63 +93,185 @@ const stages: JourneyStage[] = [
     kind: 'journey',
     routeLabel: 'Lounge',
     icon: 'mdi-sofa-outline',
-    locationLead: 'You are at',
-    location: 'Departure Lounge C4',
+    locationLead: '',
+    location: 'Departure Lounge Circle C4',
     destination: '',
     destinationLabel: '',
-    primaryInfo: 'Boarding begins in 18 minutes.',
-    instruction: 'Stay nearby.',
-    supportingDetail: 'Launch remains on schedule.',
-    actionLabel: 'Begin Boarding',
-    processingSequence: [
-      'Scanning boarding credential',
-      'Confirming seat assignment',
-      'Passenger onboard',
-    ],
+    instruction: '',
+    actionLabel: null,
+    processingSequence: [],
   },
   {
     id: 5,
     kind: 'journey',
     routeLabel: 'Onboard',
     icon: 'mdi-airplane-takeoff',
-    locationLead: 'You are',
+    locationLead: '',
     location: 'Onboard',
     destination: '',
     destinationLabel: '',
-    instruction: 'Enjoy the view.',
-    supportingDetail: 'Cabin secured. Launch on schedule.',
+    instruction: '',
     actionLabel: null,
     processingSequence: [],
   },
 ]
 
+const CHECK_IN_SEQUENCE = [
+  'Verifying identity',
+  'Identity confirmed',
+  'Registering baggage',
+  'Baggage accepted',
+  'Confirming travel clearance',
+  'Check-in complete',
+]
+
+const SECURITY_SEQUENCE = [
+  'Validating boarding credential',
+  'Credential confirmed',
+  'Completing screening',
+  'Security cleared',
+]
+
+const BOARDING_SEQUENCE = [
+  'Scanning boarding credential',
+  'Confirming seat assignment',
+  'Passenger onboard',
+]
+
+const BOARDING_PASS_SEQUENCE = [
+  'Generating boarding pass',
+  'Pass ready',
+]
+
 const STORAGE_KEY = 'meridian-flight-stage-index'
+const FLOW_STORAGE_KEY = 'meridian-flight-journey-state'
+const NAME_STORAGE_KEY = 'meridian-flight-passenger-first-name'
+const ROUTE_STORAGE_KEY = 'meridian-flight-security-route'
+const CHECKIN_STORAGE_KEY = 'meridian-flight-checkin-complete'
 
-function getInitialStageIndex(): number {
-  if (typeof window === 'undefined') {
-    return 0
+function mapLegacyIndexToState(index: number): JourneyState {
+  if (index <= 0) {
+    return 'welcome'
   }
-
-  const stored = window.localStorage.getItem(STORAGE_KEY)
-  const parsed = Number(stored)
-
-  if (!Number.isInteger(parsed)) {
-    return 0
+  if (index === 1) {
+    return 'lobbyCircle'
   }
-
-  return Math.min(Math.max(parsed, 0), stages.length - 1)
+  if (index === 2) {
+    return 'checkInCircle'
+  }
+  if (index === 4) {
+    return 'loungeCircle'
+  }
+  return 'onboard'
 }
 
-const currentStageIndex = ref(getInitialStageIndex())
+function getInitialCheckInComplete(initialState: JourneyState): boolean {
+  if (typeof window === 'undefined') {
+    return false
+  }
+
+  const stored = window.localStorage.getItem(CHECKIN_STORAGE_KEY)
+  if (stored === 'true') {
+    return true
+  }
+
+  if (stored === 'false') {
+    return false
+  }
+
+  return initialState === 'checkInCircle' || initialState === 'securityCircle' || initialState === 'securityProcessing' || initialState === 'loungeCircle' || initialState === 'nowBoarding' || initialState === 'boardingCircle' || initialState === 'boardingProcessing' || initialState === 'onboard'
+}
+
+function getInitialSecurityRoute(): SecurityRoute {
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  const stored = window.localStorage.getItem(ROUTE_STORAGE_KEY)
+  if (stored === 'express' || stored === 'standard') {
+    return stored
+  }
+
+  return null
+}
+
+function getInitialJourneyState(): JourneyState {
+  if (typeof window === 'undefined') {
+    return 'welcome'
+  }
+
+  const stored = window.localStorage.getItem(FLOW_STORAGE_KEY)
+  if (
+    stored === 'welcome' ||
+    stored === 'lobbyCircle' ||
+    stored === 'checkInCircle' ||
+    stored === 'checkInProcessing' ||
+    stored === 'securityCircle' ||
+    stored === 'securityProcessing' ||
+    stored === 'loungeCircle' ||
+    stored === 'boardingProcessing' ||
+    stored === 'onboard'
+  ) {
+    return stored
+  }
+
+  const legacy = Number(window.localStorage.getItem(STORAGE_KEY))
+  if (Number.isInteger(legacy)) {
+    return mapLegacyIndexToState(legacy)
+  }
+
+  return 'welcome'
+}
+
+const journeyState = ref<JourneyState>(getInitialJourneyState())
+const passengerFirstName = ref('')
+const securityRoute = ref<SecurityRoute>(getInitialSecurityRoute())
+const checkInComplete = ref<boolean>(getInitialCheckInComplete(journeyState.value))
+const securityComplete = ref<boolean>(false)
+const loungeReady = ref<boolean>(false)
+const loungeCountdownSeconds = ref<number>(0)
+const boardingCircleReady = ref<boolean>(false)
+const boardingPassGenerated = ref<boolean>(false)
 const isProcessing = ref(false)
 const processingSteps = ref<string[]>([])
 const activeProcessingIndex = ref(-1)
 const nowMs = ref(Date.now())
 let processingRunId = 0
+let countdownIntervalId: ReturnType<typeof setInterval> | null = null
 
-watch(currentStageIndex, (value) => {
+if (typeof window !== 'undefined') {
+  passengerFirstName.value = window.localStorage.getItem(NAME_STORAGE_KEY) ?? ''
+}
+
+watch(passengerFirstName, (value) => {
   if (typeof window !== 'undefined') {
-    window.localStorage.setItem(STORAGE_KEY, String(value))
+    if (value) {
+      window.localStorage.setItem(NAME_STORAGE_KEY, value)
+    } else {
+      window.localStorage.removeItem(NAME_STORAGE_KEY)
+    }
+  }
+})
+
+watch(securityRoute, (value) => {
+  if (typeof window !== 'undefined') {
+    if (value) {
+      window.localStorage.setItem(ROUTE_STORAGE_KEY, value)
+    } else {
+      window.localStorage.removeItem(ROUTE_STORAGE_KEY)
+    }
+  }
+})
+
+watch(checkInComplete, (value) => {
+  if (typeof window !== 'undefined') {
+    window.localStorage.setItem(CHECKIN_STORAGE_KEY, value ? 'true' : 'false')
+  }
+})
+
+watch(journeyState, (value) => {
+  if (typeof window !== 'undefined') {
+    window.localStorage.setItem(FLOW_STORAGE_KEY, value)
   }
 })
 
@@ -165,16 +285,39 @@ const launchTimeMs =
     ? configuredLaunchTimeMs
     : Date.now() + 2 * 60 * 60 * 1000
 
-const activeStage = computed<JourneyStage>(() => stages[Math.min(currentStageIndex.value, stages.length - 1)]!)
-
 const routeStages = computed(() => stages.filter((stage) => stage.kind === 'journey'))
 
-const routeStageIndex = computed(() => {
-  if (activeStage.value.kind === 'welcome') {
+const majorStageIndex = computed(() => {
+  if (journeyState.value === 'welcome') {
     return -1
   }
+  if (journeyState.value === 'lobbyCircle') {
+    return 0
+  }
+  if (journeyState.value === 'checkInCircle' || journeyState.value === 'checkInProcessing') {
+    return 1
+  }
+  if (journeyState.value === 'securityCircle' || journeyState.value === 'securityProcessing') {
+    return 2
+  }
+  if (journeyState.value === 'loungeCircle') {
+    return 3
+  }
+  if (journeyState.value === 'nowBoarding' || journeyState.value === 'boardingCircle' || journeyState.value === 'boardingProcessing') {
+    return 4
+  }
+  return 4
+})
 
-  return routeStages.value.findIndex((stage) => stage.id === activeStage.value.id)
+const routeStageIndex = computed(() => majorStageIndex.value)
+
+const currentStageIndex = computed(() => Math.max(majorStageIndex.value + 1, 0))
+
+watch(currentStageIndex, (value) => {
+  if (typeof window !== 'undefined') {
+    // Keep legacy numeric key in sync for compatibility with existing checks.
+    window.localStorage.setItem(STORAGE_KEY, String(value))
+  }
 })
 
 const completedStageCount = computed(() => Math.max(routeStageIndex.value, 0))
@@ -182,6 +325,14 @@ const completedStageCount = computed(() => Math.max(routeStageIndex.value, 0))
 const journeyProgressPercent = computed(() => {
   const denominator = Math.max(routeStages.value.length - 1, 1)
   return Math.round((completedStageCount.value / denominator) * 100)
+})
+
+const activeStage = computed<JourneyStage>(() => {
+  if (journeyState.value === 'welcome') {
+    return stages[0]!
+  }
+
+  return stages[Math.max(majorStageIndex.value + 1, 1)]!
 })
 
 const liveCountdown = computed(() => {
@@ -197,25 +348,40 @@ const liveCountdown = computed(() => {
 })
 
 const journeyStatusText = computed(() => {
-  if (activeStage.value.kind === 'welcome') {
-    return 'Arrival not started'
+  switch (journeyState.value) {
+    case 'welcome':
+      return 'Arrival not started'
+    case 'lobbyCircle':
+      return 'At Passenger Lobby Circle'
+    case 'checkInProcessing':
+      return 'Check-in Circle B processing'
+    case 'checkInCircle':
+      return checkInComplete.value ? 'At Check-in Circle with next routing assigned' : 'At Check-in Circle'
+    case 'securityCircle':
+      return securityComplete.value ? 'At Security Circle with next routing assigned' : 'At Security Circle'
+    case 'securityProcessing':
+      return securityRoute.value === 'express' ? 'Express Security processing' : 'Standard Security processing'
+    case 'loungeCircle':
+      return 'At Departure Lounge Circle C4'
+    case 'boardingProcessing':
+      return 'Boarding in progress'
+    case 'onboard':
+      return 'Passenger onboard'
+    default:
+      return 'Journey active'
   }
-
-  if (currentStageIndex.value === stages.length - 1) {
-    return 'Passenger onboard'
-  }
-
-  return `At ${activeStage.value.location}`
 })
 
 const boardingStatus = computed(() => {
-  if (currentStageIndex.value < 4) {
-    return 'Awaiting passenger movement from lounge'
+  if (journeyState.value === 'onboard') {
+    return 'Boarding complete'
   }
-  if (currentStageIndex.value === 4) {
+
+  if (journeyState.value === 'boardingProcessing' || journeyState.value === 'loungeCircle') {
     return 'Boarding sequence opening shortly'
   }
-  return 'Boarding complete'
+
+  return 'Awaiting passenger movement from lounge'
 })
 
 function delay(ms: number): Promise<void> {
@@ -224,30 +390,13 @@ function delay(ms: number): Promise<void> {
   })
 }
 
-async function advanceJourney(): Promise<void> {
-  if (isProcessing.value || currentStageIndex.value >= stages.length - 1) {
-    return
-  }
-
+async function runProcessing(sequence: string[], completeState: JourneyState): Promise<void> {
   processingRunId += 1
   const runId = processingRunId
-  const current = activeStage.value
-  const sequence = current.processingSequence
-
-  if (sequence.length === 0) {
-    isProcessing.value = true
-    await delay(320)
-    if (runId !== processingRunId) {
-      return
-    }
-
-    currentStageIndex.value += 1
-    isProcessing.value = false
-    return
-  }
 
   isProcessing.value = true
   processingSteps.value = [...sequence]
+  activeProcessingIndex.value = -1
 
   for (let index = 0; index < sequence.length; index += 1) {
     if (runId !== processingRunId) {
@@ -263,18 +412,146 @@ async function advanceJourney(): Promise<void> {
   }
 
   await delay(420)
-  currentStageIndex.value += 1
+  journeyState.value = completeState
   processingSteps.value = []
   activeProcessingIndex.value = -1
   isProcessing.value = false
 }
 
+async function startCheckInProcessing(): Promise<void> {
+  await runProcessing(CHECK_IN_SEQUENCE, 'checkInCircle')
+  checkInComplete.value = true
+}
+
+async function startSecurityProcessing(): Promise<void> {
+  await runProcessing(SECURITY_SEQUENCE, 'securityCircle')
+  securityComplete.value = true
+}
+
+async function startBoardingPassProcessing(): Promise<void> {
+  await runProcessing(BOARDING_PASS_SEQUENCE, 'boardingCircle')
+  boardingPassGenerated.value = true
+}
+
+function startLoungeCountdown(): void {
+  loungeCountdownSeconds.value = 13
+  if (countdownIntervalId) {
+    clearInterval(countdownIntervalId)
+  }
+  countdownIntervalId = setInterval(() => {
+    loungeCountdownSeconds.value -= 1
+    if (loungeCountdownSeconds.value <= 0) {
+      if (countdownIntervalId) {
+        clearInterval(countdownIntervalId)
+        countdownIntervalId = null
+      }
+      journeyState.value = 'nowBoarding'
+    }
+  }, 1000)
+}
+
+async function advanceJourney(): Promise<void> {
+  if (isProcessing.value) {
+    return
+  }
+
+  if (journeyState.value === 'welcome') {
+    journeyState.value = 'lobbyCircle'
+    return
+  }
+
+  if (journeyState.value === 'lobbyCircle') {
+    journeyState.value = 'checkInCircle'
+    checkInComplete.value = false
+    securityRoute.value = null
+    return
+  }
+
+  if (journeyState.value === 'checkInCircle') {
+    if (!checkInComplete.value) {
+      journeyState.value = 'checkInProcessing'
+      void startCheckInProcessing()
+      return
+    }
+
+    journeyState.value = 'securityCircle'
+    securityComplete.value = false
+    securityRoute.value = 'standard'
+    return
+  }
+
+  if (journeyState.value === 'securityCircle') {
+    if (!securityComplete.value) {
+      journeyState.value = 'securityProcessing'
+      void startSecurityProcessing()
+      return
+    }
+
+    journeyState.value = 'loungeCircle'
+    loungeReady.value = true
+    startLoungeCountdown()
+    return
+  }
+
+  if (journeyState.value === 'loungeCircle') {
+    return
+  }
+
+  if (journeyState.value === 'nowBoarding') {
+    journeyState.value = 'boardingCircle'
+    boardingCircleReady.value = true
+    return
+  }
+
+  if (journeyState.value === 'boardingCircle') {
+    if (!boardingPassGenerated.value) {
+      journeyState.value = 'boardingProcessing'
+      void startBoardingPassProcessing()
+      return
+    }
+
+    journeyState.value = 'onboard'
+    return
+  }
+
+  if (journeyState.value === 'boardingProcessing') {
+    journeyState.value = 'onboard'
+  }
+}
+
 function resetJourney(): void {
   processingRunId += 1
+  if (countdownIntervalId) {
+    clearInterval(countdownIntervalId)
+    countdownIntervalId = null
+  }
   isProcessing.value = false
   processingSteps.value = []
   activeProcessingIndex.value = -1
-  currentStageIndex.value = 0
+  journeyState.value = 'welcome'
+  passengerFirstName.value = ''
+  securityRoute.value = null
+  checkInComplete.value = false
+  securityComplete.value = false
+  loungeReady.value = false
+  loungeCountdownSeconds.value = 0
+  boardingCircleReady.value = false
+  boardingPassGenerated.value = false
+}
+
+function setPassengerFirstName(name: string): boolean {
+  const trimmed = name.trim()
+
+  if (!trimmed) {
+    return false
+  }
+
+  passengerFirstName.value = trimmed
+  return true
+}
+
+function setExpressVerification(completed: boolean): void {
+  securityRoute.value = completed ? 'express' : 'standard'
 }
 
 export function useFlightState() {
@@ -287,12 +564,23 @@ export function useFlightState() {
     currentStageIndex: readonly(currentStageIndex),
     completedStageCount,
     journeyProgressPercent,
+    journeyState: readonly(journeyState),
     isProcessing: readonly(isProcessing),
     processingSteps: readonly(processingSteps),
     activeProcessingIndex: readonly(activeProcessingIndex),
     liveCountdown,
     journeyStatusText,
     boardingStatus,
+    checkInComplete: readonly(checkInComplete),
+    securityComplete: readonly(securityComplete),
+    loungeReady: readonly(loungeReady),
+    loungeCountdownSeconds: readonly(loungeCountdownSeconds),
+    boardingCircleReady: readonly(boardingCircleReady),
+    boardingPassGenerated: readonly(boardingPassGenerated),
+    passengerFirstName: readonly(passengerFirstName),
+    securityRoute: readonly(securityRoute),
+    setPassengerFirstName,
+    setExpressVerification,
     advanceJourney,
     resetJourney,
   }

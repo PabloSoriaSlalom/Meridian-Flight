@@ -15,21 +15,37 @@ const launchTimeDisplay = computed(() => {
   })
 })
 
-const statusRows = computed(() => [
-  { label: 'Flight Number', value: flightStatus.flightNumber },
-  { label: 'Vehicle Name', value: flightStatus.vehicleName },
-  { label: 'Destination', value: flightStatus.destination },
-  { label: 'Launch Time', value: launchTimeDisplay.value },
-  { label: 'Live Countdown', value: liveCountdown.value },
-  { label: 'Launch Window', value: flightStatus.launchWindow },
-  { label: 'Vehicle Turnaround', value: flightStatus.vehicleTurnaroundStatus },
-  { label: 'Cabin Preparation', value: flightStatus.cabinPreparation },
-  { label: 'Fueling Status', value: flightStatus.fuelingStatus },
-  { label: 'Final Inspection', value: flightStatus.finalInspection },
-  { label: 'Weather', value: flightStatus.weather },
-  { label: 'Boarding Status', value: boardingStatus.value },
-  { label: 'Journey Progress', value: `${journeyProgressPercent.value}%` },
-  { label: 'Current Journey State', value: journeyStatusText.value },
+const topStatusItems = computed(() => [
+  { 
+    label: 'Flight Number', 
+    value: flightStatus.flightNumber,
+    icon: 'mdi-airplane'
+  },
+  { 
+    label: 'Vehicle Name', 
+    value: flightStatus.vehicleName,
+    icon: 'mdi-rocket-outline'
+  },
+  { 
+    label: 'Destination', 
+    value: flightStatus.destination,
+    icon: 'mdi-earth'
+  },
+  { 
+    label: 'Launch Time', 
+    value: launchTimeDisplay.value,
+    icon: 'mdi-clock-outline'
+  },
+  { 
+    label: 'Live Countdown', 
+    value: liveCountdown.value,
+    icon: 'mdi-timer-outline'
+  },
+  { 
+    label: 'Launch Window', 
+    value: flightStatus.launchWindow,
+    icon: 'mdi-window-closed'
+  },
 ])
 </script>
 
@@ -40,9 +56,12 @@ const statusRows = computed(() => [
       <p class="summary">Routine departure profile. Launch remains on schedule.</p>
 
       <div class="status-grid">
-        <div v-for="row in statusRows" :key="row.label" class="status-row">
-          <p class="label">{{ row.label }}</p>
-          <p class="value">{{ row.value }}</p>
+        <div v-for="item in topStatusItems" :key="item.label" class="status-item-card">
+          <div class="card-icon">
+            <v-icon :icon="item.icon" size="32" color="#F9C784" />
+          </div>
+          <p class="item-label">{{ item.label }}</p>
+          <p class="item-value">{{ item.value }}</p>
         </div>
       </div>
     </v-card>
@@ -72,32 +91,49 @@ const statusRows = computed(() => [
 }
 
 .status-grid {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
 }
 
-.status-row {
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(231, 231, 231, 0.1);
+.status-item-card {
+  background: rgba(231, 231, 231, 0.08);
+  border: 1px solid rgba(231, 231, 231, 0.14);
+  border-radius: 8px;
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: border-color 0.2s ease;
 }
 
-.status-row:last-child {
-  border-bottom: 0;
-  padding-bottom: 0;
+.status-item-card:hover {
+  border-color: rgba(249, 199, 132, 0.3);
 }
 
-.label {
-  margin: 0;
-  font-size: 0.78rem;
+.card-icon {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+}
+
+.item-label {
+  margin: 0 0 6px;
+  font-size: 0.7rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(231, 231, 231, 0.58);
+  color: rgba(231, 231, 231, 0.54);
+  font-weight: 500;
 }
 
-.value {
-  margin: 6px 0 0;
-  font-size: 1rem;
-  color: rgba(231, 231, 231, 0.92);
+.item-value {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #e7e7e7;
+  line-height: 1.3;
 }
 </style>

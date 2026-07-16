@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 import { useFlightState } from '@/composables/useFlightState'
 import meridianLogo from '@/images/MS_logo.png'
 
 const route = useRoute()
 const router = useRouter()
-const { activeStage, resetJourney } = useFlightState()
+const { activeStage, passengerFirstName, setPassengerFirstName, resetJourney } = useFlightState()
+const nameInput = ref('')
 
 const activeTab = computed({
   get: () => String(route.name ?? 'journey'),
@@ -18,6 +19,17 @@ const activeTab = computed({
 })
 
 const isWelcomeJourneyView = computed(() => route.name === 'journey' && activeStage.value.kind === 'welcome')
+const needsPersonalization = computed(() => passengerFirstName.value.trim().length === 0)
+const canContinue = computed(() => nameInput.value.trim().length > 0)
+
+function continueWithName() {
+  if (!setPassengerFirstName(nameInput.value)) {
+    return
+  }
+
+  nameInput.value = ''
+  router.push({ name: 'journey' })
+}
 </script>
 
 <template>
@@ -37,7 +49,39 @@ const isWelcomeJourneyView = computed(() => route.name === 'journey' && activeSt
               </div>
             </header>
 
-            <section :class="['shell-content', { 'shell-content--welcome': isWelcomeJourneyView }]">
+            <section
+              v-if="needsPersonalization"
+              class="shell-content shell-content--personalize"
+              aria-label="Personalize experience"
+            >
+              <div class="personalize-card">
+                <p class="personalize-copy">
+                  Enter your name and continue.
+                </p>
+                <v-text-field
+                  v-model="nameInput"
+                  label="First name"
+                  variant="outlined"
+                  density="comfortable"
+                  color="primary"
+                  hide-details
+                  class="personalize-input"
+                  @keydown.enter="continueWithName"
+                />
+                <v-btn
+                  block
+                  size="large"
+                  rounded="lg"
+                  class="personalize-btn"
+                  :disabled="!canContinue"
+                  @click="continueWithName"
+                >
+                  Continue
+                </v-btn>
+              </div>
+            </section>
+
+            <section v-else :class="['shell-content', { 'shell-content--welcome': isWelcomeJourneyView }]">
               <RouterView />
             </section>
 
@@ -209,6 +253,55 @@ const isWelcomeJourneyView = computed(() => route.name === 'journey' && activeSt
   align-items: stretch;
   justify-content: center;
   background: #0a1024;
+}
+
+.shell-content--personalize {
+  padding: 24px 20px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.personalize-card {
+  width: min(340px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.personalize-copy {
+  margin: 2px 0 6px;
+  color: rgba(231, 231, 231, 0.82);
+  line-height: 1.35;
+  font-size: 0.98rem;
+}
+
+.personalize-input {
+  width: 100%;
+}
+
+.personalize-input :deep(.v-field) {
+  --v-field-padding-start: 14px;
+  --v-field-padding-end: 14px;
+  min-height: 52px;
+}
+
+.personalize-input :deep(.v-field__input) {
+  padding-inline: 14px !important;
+}
+
+.personalize-input :deep(.v-label.v-field-label) {
+  left: 14px !important;
+}
+
+.personalize-btn {
+  width: 100%;
+  min-height: 48px;
+  background: linear-gradient(90deg, #fc7a1e, #f24c00);
+  color: #091022;
+  font-weight: 700;
+  letter-spacing: 0.03em;
 }
 
 .shell-content--welcome :deep(.journey-view--welcome) {
