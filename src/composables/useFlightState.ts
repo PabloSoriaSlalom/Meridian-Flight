@@ -3,74 +3,125 @@ import flightStatus from '@/data/flight-status.json'
 
 export type JourneyStage = {
   id: number
-  label: string
+  kind: 'welcome' | 'journey'
+  routeLabel: string
   icon: string
-  headline: string
+  locationLead: string
+  location: string
+  destination: string
+  destinationLabel: string
   instruction: string
-  actionLabel: string
-  processingSteps: string[]
-  info: string[]
+  supportingDetail?: string
+  completionMessage?: string
+  requiredItems?: string[]
+  primaryInfo?: string
+  actionLabel: string | null
+  processingSequence: string[]
 }
 
 const stages: JourneyStage[] = [
   {
+    id: 0,
+    kind: 'welcome',
+    routeLabel: 'Start',
+    icon: 'mdi-rocket-launch-outline',
+    locationLead: 'Good morning, Pablo.',
+    location: 'Welcome to your Meridian Flight',
+    destination: 'Meridian Passenger Lobby Entrance',
+    destinationLabel: 'Begin at',
+    instruction: 'Begin your arrival once you reach the entrance to the Meridian Passenger Lobby.',
+    supportingDetail: 'Flight M102  •  Launch 10:45 AM  •  Vehicle Aurora 07',
+    actionLabel: 'Begin Arrival',
+    processingSequence: [],
+  },
+  {
     id: 1,
-    label: 'Passenger Lobby',
+    kind: 'journey',
+    routeLabel: 'Lobby',
     icon: 'mdi-office-building-marker-outline',
-    headline: "You're in the right place.",
-    instruction: 'Proceed to Check-in Counter B and follow the blue overhead guidance line.',
+    locationLead: 'You are at',
+    location: 'Meridian Passenger Lobby',
+    destination: 'Counter B',
+    destinationLabel: 'Next',
+    instruction: 'Proceed to Counter B.',
+    supportingDetail: 'Approximately 2 minutes away.',
     actionLabel: 'Begin Check-in',
-    processingSteps: [
-      'Locating your reservation',
-      'Preparing check-in record',
-      'Opening counter assignment',
+    processingSequence: [
+      'Verifying identity',
+      'Identity confirmed',
+      'Registering baggage',
+      'Baggage accepted',
+      'Confirming travel clearance',
+      'Check-in complete',
     ],
-    info: ['Counter B is active', 'Blue line guidance is available'],
   },
   {
     id: 2,
-    label: 'Check-in',
+    kind: 'journey',
+    routeLabel: 'Check-in',
     icon: 'mdi-account-check-outline',
-    headline: 'Check-in in progress.',
-    instruction: 'Have your Boarding Credential and Government ID ready for Terminal C Security.',
+    locationLead: 'You are at',
+    location: 'Check-in Counter B',
+    destination: 'Terminal C Security',
+    destinationLabel: 'Next',
+    completionMessage: 'Check-in complete',
+    instruction: 'Follow the blue guidance line.',
+    requiredItems: ['Government ID', 'Boarding Credential'],
     actionLabel: 'Begin Security',
-    processingSteps: [
-      'Confirming reservation',
-      'Verifying identity',
-      'Registering baggage',
-      'Validating travel clearance',
+    processingSequence: [
+      'Validating boarding credential',
+      'Credential confirmed',
+      'Completing screening',
+      'Security cleared',
     ],
-    info: ['Proceed next to Terminal C Security'],
   },
   {
     id: 3,
-    label: 'Security',
+    kind: 'journey',
+    routeLabel: 'Security',
     icon: 'mdi-shield-check-outline',
-    headline: 'Security screening.',
-    instruction: 'Continue toward the Departure Lounge after screening confirmation.',
-    actionLabel: 'Continue to Departure Lounge',
-    processingSteps: ['Scanning credential', 'Reviewing screening lane status', 'Confirming security clearance'],
-    info: ['Terminal C Security lanes are flowing normally'],
+    locationLead: 'You are at',
+    location: 'Terminal C Security',
+    destination: 'Departure Lounge C4',
+    destinationLabel: 'Next',
+    completionMessage: 'Security cleared',
+    instruction: 'Follow the blue guidance line.',
+    supportingDetail: 'Approximately 4 minutes away.',
+    actionLabel: 'Continue to Lounge',
+    processingSequence: [],
   },
   {
     id: 4,
-    label: 'Departure Lounge',
+    kind: 'journey',
+    routeLabel: 'Lounge',
     icon: 'mdi-sofa-outline',
-    headline: 'Departure Lounge reached.',
-    instruction: 'Boarding begins shortly. Stay nearby and keep your credential visible.',
+    locationLead: 'You are at',
+    location: 'Departure Lounge C4',
+    destination: '',
+    destinationLabel: '',
+    primaryInfo: 'Boarding begins in 18 minutes.',
+    instruction: 'Stay nearby.',
+    supportingDetail: 'Launch remains on schedule.',
     actionLabel: 'Begin Boarding',
-    processingSteps: ['Preparing boarding corridor', 'Verifying cabin readiness', 'Opening boarding group sequence'],
-    info: ['Boarding begins in approximately 20 minutes', 'Launch remains on schedule'],
+    processingSequence: [
+      'Scanning boarding credential',
+      'Confirming seat assignment',
+      'Passenger onboard',
+    ],
   },
   {
     id: 5,
-    label: 'Onboard',
+    kind: 'journey',
+    routeLabel: 'Onboard',
     icon: 'mdi-airplane-takeoff',
-    headline: 'Boarding complete.',
-    instruction: 'You are seated and ready for launch. Enjoy the view.',
-    actionLabel: '',
-    processingSteps: [],
-    info: ['Seat 14A', 'Launch remains on schedule'],
+    locationLead: 'You are',
+    location: 'Onboard',
+    destination: '',
+    destinationLabel: '',
+    instruction: 'Enjoy the view.',
+    supportingDetail: 'Cabin secured. Launch on schedule.',
+    actionLabel: null,
+    processingSequence: [],
   },
 ]
 
@@ -93,7 +144,8 @@ function getInitialStageIndex(): number {
 
 const currentStageIndex = ref(getInitialStageIndex())
 const isProcessing = ref(false)
-const processingMessage = ref('')
+const processingSteps = ref<string[]>([])
+const activeProcessingIndex = ref(-1)
 const nowMs = ref(Date.now())
 let processingRunId = 0
 
@@ -115,9 +167,22 @@ const launchTimeMs =
 
 const activeStage = computed<JourneyStage>(() => stages[Math.min(currentStageIndex.value, stages.length - 1)]!)
 
-const completedStageCount = computed(() => currentStageIndex.value)
+const routeStages = computed(() => stages.filter((stage) => stage.kind === 'journey'))
 
-const journeyProgressPercent = computed(() => Math.round((completedStageCount.value / (stages.length - 1)) * 100))
+const routeStageIndex = computed(() => {
+  if (activeStage.value.kind === 'welcome') {
+    return -1
+  }
+
+  return routeStages.value.findIndex((stage) => stage.id === activeStage.value.id)
+})
+
+const completedStageCount = computed(() => Math.max(routeStageIndex.value, 0))
+
+const journeyProgressPercent = computed(() => {
+  const denominator = Math.max(routeStages.value.length - 1, 1)
+  return Math.round((completedStageCount.value / denominator) * 100)
+})
 
 const liveCountdown = computed(() => {
   const diff = Math.max(0, launchTimeMs - nowMs.value)
@@ -132,18 +197,22 @@ const liveCountdown = computed(() => {
 })
 
 const journeyStatusText = computed(() => {
+  if (activeStage.value.kind === 'welcome') {
+    return 'Arrival not started'
+  }
+
   if (currentStageIndex.value === stages.length - 1) {
     return 'Passenger onboard'
   }
 
-  return `Stage ${currentStageIndex.value + 1} of ${stages.length}: ${activeStage.value.label}`
+  return `At ${activeStage.value.location}`
 })
 
 const boardingStatus = computed(() => {
-  if (currentStageIndex.value < 3) {
+  if (currentStageIndex.value < 4) {
     return 'Awaiting passenger movement from lounge'
   }
-  if (currentStageIndex.value === 3) {
+  if (currentStageIndex.value === 4) {
     return 'Boarding sequence opening shortly'
   }
   return 'Boarding complete'
@@ -162,32 +231,49 @@ async function advanceJourney(): Promise<void> {
 
   processingRunId += 1
   const runId = processingRunId
-  isProcessing.value = true
   const current = activeStage.value
+  const sequence = current.processingSequence
 
-  for (const step of current.processingSteps) {
+  if (sequence.length === 0) {
+    isProcessing.value = true
+    await delay(320)
     if (runId !== processingRunId) {
       return
     }
 
-    processingMessage.value = step
-    await delay(900)
+    currentStageIndex.value += 1
+    isProcessing.value = false
+    return
+  }
+
+  isProcessing.value = true
+  processingSteps.value = [...sequence]
+
+  for (let index = 0; index < sequence.length; index += 1) {
+    if (runId !== processingRunId) {
+      return
+    }
+
+    activeProcessingIndex.value = index
+    await delay(760)
   }
 
   if (runId !== processingRunId) {
     return
   }
 
-  await delay(500)
+  await delay(420)
   currentStageIndex.value += 1
-  processingMessage.value = ''
+  processingSteps.value = []
+  activeProcessingIndex.value = -1
   isProcessing.value = false
 }
 
 function resetJourney(): void {
   processingRunId += 1
   isProcessing.value = false
-  processingMessage.value = ''
+  processingSteps.value = []
+  activeProcessingIndex.value = -1
   currentStageIndex.value = 0
 }
 
@@ -195,12 +281,15 @@ export function useFlightState() {
   return {
     flightStatus,
     stages: readonly(stages),
+    routeStages,
+    routeStageIndex,
     activeStage,
     currentStageIndex: readonly(currentStageIndex),
     completedStageCount,
     journeyProgressPercent,
     isProcessing: readonly(isProcessing),
-    processingMessage: readonly(processingMessage),
+    processingSteps: readonly(processingSteps),
+    activeProcessingIndex: readonly(activeProcessingIndex),
     liveCountdown,
     journeyStatusText,
     boardingStatus,

@@ -2,10 +2,11 @@
 import { computed } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 import { useFlightState } from '@/composables/useFlightState'
+import meridianLogo from '@/images/MS_logo.png'
 
 const route = useRoute()
 const router = useRouter()
-const { resetJourney } = useFlightState()
+const { activeStage, resetJourney } = useFlightState()
 
 const activeTab = computed({
   get: () => String(route.name ?? 'journey'),
@@ -15,27 +16,33 @@ const activeTab = computed({
     }
   },
 })
+
+const isWelcomeJourneyView = computed(() => route.name === 'journey' && activeStage.value.kind === 'welcome')
 </script>
 
 <template>
   <v-app>
-    <div class="meridian-bg">
-      <div class="glow glow-a"></div>
-      <div class="glow glow-b"></div>
+    <div :class="['meridian-bg', { 'meridian-bg--welcome': isWelcomeJourneyView }]">
+      <div v-if="!isWelcomeJourneyView" class="glow glow-a"></div>
+      <div v-if="!isWelcomeJourneyView" class="glow glow-b"></div>
 
       <main class="review-frame">
         <div class="review-stack">
-          <section class="phone-shell">
-            <header class="shell-header">
-              <p class="shell-label">Meridian Space</p>
-              <h1 class="shell-title">Meridian Flight</h1>
+          <section :class="['phone-shell', { 'phone-shell--welcome': isWelcomeJourneyView }]">
+            <header v-if="!isWelcomeJourneyView" class="shell-header">
+              <img :src="meridianLogo" alt="Meridian Space" class="shell-logo" />
+              <div class="flight-meta" aria-label="Active flight details">
+                <p class="flight-number">Your flight: M102</p>
+                <p class="flight-status">On time</p>
+              </div>
             </header>
 
-            <section class="shell-content">
+            <section :class="['shell-content', { 'shell-content--welcome': isWelcomeJourneyView }]">
               <RouterView />
             </section>
 
             <v-bottom-navigation
+              v-if="!isWelcomeJourneyView"
               v-model="activeTab"
               grow
               class="shell-nav"
@@ -57,9 +64,10 @@ const activeTab = computed({
             </v-bottom-navigation>
           </section>
 
-          <div class="review-controls">
+          <div v-if="!isWelcomeJourneyView" class="review-controls">
             <v-btn
-              variant="outlined"
+              variant="text"
+              size="small"
               rounded="xl"
               prepend-icon="mdi-restore"
               class="reset-btn"
@@ -81,6 +89,10 @@ const activeTab = computed({
   padding: 16px;
   background: radial-gradient(120% 120% at 20% 0%, #485696 0%, #12182e 48%, #0a0e1f 100%);
   overflow: hidden;
+}
+
+.meridian-bg--welcome {
+  background: #0a1024;
 }
 
 .glow {
@@ -134,29 +146,74 @@ const activeTab = computed({
   overflow: hidden;
 }
 
+.phone-shell--welcome {
+  background: #08112a;
+}
+
 .shell-header {
-  padding: 18px 20px 10px;
+  padding: 14px 20px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid rgba(231, 231, 231, 0.14);
+  background: linear-gradient(180deg, rgba(12, 20, 45, 0.82) 0%, rgba(10, 16, 36, 0.72) 100%);
 }
 
-.shell-label {
+.shell-logo {
+  width: 148px;
+  max-width: 52%;
+  height: auto;
+  border-radius: 6px;
+}
+
+.flight-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.flight-number {
   margin: 0;
-  font-size: 0.72rem;
-  letter-spacing: 0.18em;
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(231, 231, 231, 0.72);
+  color: rgba(231, 231, 231, 0.8);
 }
 
-.shell-title {
-  margin: 4px 0 0;
-  font-size: 1.35rem;
-  color: #e7e7e7;
-  letter-spacing: 0.02em;
+.flight-status {
+  margin: 0;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #77e0b5;
+  background: rgba(119, 224, 181, 0.16);
+  border: 1px solid rgba(119, 224, 181, 0.5);
 }
 
 .shell-content {
   flex: 1;
-  padding: 8px 16px 0;
+  padding: 14px 16px 0;
   overflow-y: auto;
+}
+
+.shell-content--welcome {
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  min-height: 0;
+  height: 100%;
+  align-items: stretch;
+  justify-content: center;
+  background: #0a1024;
+}
+
+.shell-content--welcome :deep(.journey-view--welcome) {
+  flex: 1;
+  min-height: 100%;
 }
 
 .shell-nav {
@@ -167,13 +224,13 @@ const activeTab = computed({
 .review-controls {
   display: flex;
   justify-content: center;
-  padding-top: 12px;
+  padding-top: 8px;
 }
 
 .reset-btn {
-  border-color: rgba(249, 199, 132, 0.7);
-  color: #f9c784;
-  background: rgba(9, 15, 34, 0.55);
+  color: rgba(231, 231, 231, 0.62);
+  opacity: 0.8;
+  letter-spacing: 0.03em;
 }
 
 @media (min-width: 768px) {
@@ -187,6 +244,10 @@ const activeTab = computed({
 
   .phone-shell {
     min-height: 780px;
+    max-height: calc(100vh - 56px);
+  }
+
+  .phone-shell--welcome {
     max-height: calc(100vh - 56px);
   }
 
