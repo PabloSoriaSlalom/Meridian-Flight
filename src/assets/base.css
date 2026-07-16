@@ -1,0 +1,33 @@
+:root {
+  --meridian-blue: #485696;
+  --meridian-light: #e7e7e7;
+  --meridian-sand: #f9c784;
+  --meridian-orange: #fc7a1e;
+  --meridian-signal: #f24c00;
+  --meridian-ink: #090f22;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  font-weight: normal;
+}
+
+body {
+  min-height: 100vh;
+  color: var(--meridian-light);
+  background: var(--meridian-ink);
+  line-height: 1.45;
+  font-family:
+    'Avenir Next',
+    'Barlow',
+    'Segoe UI Variable',
+    'Segoe UI',
+    sans-serif;
+  font-size: 16px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
