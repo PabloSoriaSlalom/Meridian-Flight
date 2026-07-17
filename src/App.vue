@@ -11,15 +11,6 @@ const router = useRouter()
 const { activeStage, passengerFirstName, setPassengerFirstName, resetJourney } = useFlightState()
 const nameInput = ref('')
 
-const activeTab = computed({
-  get: () => String(route.name ?? 'journey'),
-  set: (name: string) => {
-    if (String(route.name) !== name) {
-      router.push({ name })
-    }
-  },
-})
-
 const isWelcomeJourneyView = computed(() => route.name === 'journey' && activeStage.value.kind === 'welcome')
 const needsPersonalization = computed(() => passengerFirstName.value.trim().length === 0)
 const canContinue = computed(() => nameInput.value.trim().length > 0)
@@ -43,9 +34,6 @@ function continueWithName() {
       <main class="review-frame">
         <div class="review-stack">
           <section :class="['phone-shell', { 'phone-shell--welcome': isWelcomeJourneyView }]">
-            <header v-if="!isWelcomeJourneyView" class="shell-header">
-              <img :src="meridianLogo" alt="Meridian Space" class="shell-logo" />
-            </header>
 
             <section
               v-if="needsPersonalization"
@@ -82,28 +70,6 @@ function continueWithName() {
             <section v-else :class="['shell-content', { 'shell-content--welcome': isWelcomeJourneyView }]" :style="isWelcomeJourneyView ? { backgroundImage: `url(${heroImage})` } : {}">
               <RouterView />
             </section>
-
-            <v-bottom-navigation
-              v-if="!isWelcomeJourneyView"
-              v-model="activeTab"
-              grow
-              class="shell-nav"
-              bg-color="transparent"
-              density="comfortable"
-            >
-              <v-btn value="journey">
-                <FeatherIcon name="map-pin" size="20" />
-                <span>Journey</span>
-              </v-btn>
-              <v-btn value="status">
-                <FeatherIcon name="wifi" size="20" />
-                <span>Status</span>
-              </v-btn>
-              <v-btn value="pass">
-                <FeatherIcon name="tag" size="20" />
-                <span>Pass</span>
-              </v-btn>
-            </v-bottom-navigation>
           </section>
 
           <div v-if="!isWelcomeJourneyView" class="review-controls">
@@ -193,7 +159,7 @@ function continueWithName() {
 }
 
 .shell-header {
-  padding: 14px 20px 10px;
+  padding: 8px 20px 6px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -203,7 +169,7 @@ function continueWithName() {
 }
 
 .shell-logo {
-  width: 148px;
+  width: 110px;
   max-width: 52%;
   height: auto;
   border-radius: 6px;
@@ -335,11 +301,6 @@ function continueWithName() {
 .shell-content--welcome :deep(.journey-view--welcome) {
   flex: 1;
   min-height: 100%;
-}
-
-.shell-nav {
-  border-top: 1px solid rgba(231, 231, 231, 0.14);
-  background: rgba(9, 15, 34, 0.75) !important;
 }
 
 .review-controls {

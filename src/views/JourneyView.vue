@@ -26,12 +26,16 @@ const {
 
 const isWelcome = computed(() => journeyState.value === 'welcome')
 const isLobbyCircle = computed(() => journeyState.value === 'lobbyCircle')
+const isSynchronizingCheckIn = computed(() => journeyState.value === 'synchronizingCheckIn')
 const isCheckInCircle = computed(() => journeyState.value === 'checkInCircle')
 const isCheckInReadyScreen = computed(() => isCheckInCircle.value && !checkInComplete.value)
 const isCheckInProcessing = computed(() => journeyState.value === 'checkInProcessing')
 const isSecurityCircle = computed(() => journeyState.value === 'securityCircle')
 const isSecurityReadyScreen = computed(() => isSecurityCircle.value && !securityComplete.value)
 const isSecurityProcessing = computed(() => journeyState.value === 'securityProcessing')
+const isSynchronizingSecurity = computed(() => journeyState.value === 'synchronizingSecurity')
+const isSynchronizingLounge = computed(() => journeyState.value === 'synchronizingLounge')
+const isSynchronizingBoarding = computed(() => journeyState.value === 'synchronizingBoarding')
 const isLoungeCircle = computed(() => journeyState.value === 'loungeCircle')
 const isLoungeReadyScreen = computed(() => isLoungeCircle.value && !loungeReady.value)
 const isLoungeCountdown = computed(() => isLoungeCircle.value && loungeReady.value && loungeCountdownSeconds.value > 0)
@@ -54,6 +58,17 @@ const routeInstruction = computed(() => {
       detail: 'Follow the blue line to Check-in Circle, tap the button below once you are there.',
       walk: 'Approximately 2 minutes.',
       action: "I'm at the Check-in Circle",
+    }
+  }
+
+  if (journeyState.value === 'checkInCircle' && checkInComplete.value) {
+    return {
+      current: 'Check-in Circle',
+      route: 'Security Circle',
+      destination: 'Security Circle',
+      detail: 'Walk to the <span class="route-emphasis">Security Circle</span>. Follow the <span class="route-emphasis">Blue Route</span>. Once inside, tap the button below.',
+      walk: 'Approximately 3 minutes.',
+      action: "I'm Inside the Circle",
     }
   }
 
@@ -96,6 +111,36 @@ const processContext = computed(() => {
   return null
 })
 
+const dynamicProcessingTitle = computed(() => {
+  if (isCheckInProcessing.value) {
+    const checkInTitles = [
+      'Checking identity...',
+      'Registering baggage...',
+      'Confirming travel clearance...',
+      'Preparing boarding credentials...',
+      'Check-in complete',
+    ]
+    return checkInTitles[activeProcessingIndex.value] || 'Check-in complete'
+  }
+
+  if (isSecurityProcessing.value) {
+    const securityTitles = [
+      'Verifying identity...',
+      'Validating boarding credentials...',
+      'Scanning passenger...',
+      'Screening carry-on items...',
+      'Security clearance granted',
+    ]
+    return securityTitles[activeProcessingIndex.value] || 'Security clearance granted'
+  }
+
+  if (isBoardingProcessing.value) {
+    return 'Generating boarding pass...'
+  }
+
+  return 'Processing...'
+})
+
 const primaryActionLabel = computed(() => {
   if (isLobbyCircle.value) {
     return "I'm Inside the Circle"
@@ -106,15 +151,15 @@ const primaryActionLabel = computed(() => {
   }
 
   if (isCheckInCircle.value && checkInComplete.value) {
-    return "I'm at Security Circle"
+    return "I'm Inside the Circle"
   }
 
   if (isSecurityReadyScreen.value) {
-    return 'Begin Security'
+    return 'Begin Security Screening'
   }
 
   if (isSecurityCircle.value && securityComplete.value) {
-    return "I'm at Departure Lounge Circle"
+    return "I'm Inside the Circle"
   }
 
   if (isLoungeCountdown.value) {
@@ -122,11 +167,11 @@ const primaryActionLabel = computed(() => {
   }
 
   if (isNowBoarding.value) {
-    return "I'm at the Boarding Circle"
+    return "I'm Inside the Circle"
   }
 
   if (isBoardingCircleReady.value) {
-    return 'Generate Boarding Pass'
+    return 'Generate Boarding Credential'
   }
 
   if (isBoardingPassShowing.value) {
@@ -172,15 +217,36 @@ const showBottomAction = computed(
     </div>
 
     <div v-if="isLobbyCircle" class="lobby-outside lobby-outside--lobby">
-      <h2 class="lobby-location">Welcome to the Meridian Passenger Lobby Circle</h2>
+      <h2 class="lobby-location">Passenger Lobby Circle</h2>
       <div class="icon-wrap icon-wrap--outside">
         <FeatherIcon :name="activeStage.icon" size="56" color="#f1c98a" />
       </div>
       <p class="lobby-guidance">
-        Meridian guides every passenger through a series of Circles connected by dedicated Routes. Each Circle securely synchronizes your device with the next stage of departure.
+        Meridian guides passengers through connected <span class="route-emphasis">Circles</span> and dedicated <span class="route-emphasis">Routes</span>.
       </p>
       <p class="lobby-guidance">
-        Follow the <span class="route-emphasis">Blue Route</span> to the <span class="route-emphasis">Check-in Circle</span>. Once inside, tap <span class="route-emphasis">I'm Inside the Circle</span> to begin the check-in process.
+        Each <span class="route-emphasis">Circle</span> securely synchronizes your device with the next stage of your journey.
+      </p>
+      <div class="guidance-box">
+        <p class="lobby-guidance">
+          Walk over to the next <span class="route-emphasis">Circle</span>,<br />the <span class="route-emphasis">Check-in Circle</span>.
+        </p>
+        <p class="lobby-guidance">
+          Follow the <span class="route-emphasis">Blue Route</span> to the <span class="route-emphasis">Circle</span>. Once inside, tap the button below to begin check-in.
+        </p>
+      </div>
+    </div>
+
+    <div v-if="isSynchronizingCheckIn" class="lobby-outside lobby-outside--sync">
+      <h2 class="lobby-location">Synchronizing with <span class="route-emphasis">Check-in Circle</span>...</h2>
+      <div class="sync-icon-wrap">
+        <div class="sync-spinner-dual">
+          <div class="sync-circle sync-circle-inner"></div>
+          <div class="sync-circle sync-circle-outer"></div>
+        </div>
+      </div>
+      <p class="lobby-guidance sync-text">
+        Securing connection
       </p>
     </div>
 
@@ -190,13 +256,32 @@ const showBottomAction = computed(
         <FeatherIcon :name="activeStage.icon" size="56" color="#f1c98a" />
       </div>
       <p class="lobby-guidance">
-        The Check-in Circle lets you check in to your flight. Tap below to begin check-in.
+        You're inside the <span class="route-emphasis">Check-in Circle</span>.
+      </p>
+      <p class="lobby-guidance">
+        Your device is synchronized and ready.
+      </p>
+      <p class="lobby-guidance">
+        Tap below to begin check-in.
       </p>
     </div>
 
     <div v-if="isCheckInCircle && checkInComplete" class="lobby-outside lobby-outside--checkin-complete">
-      <p class="checkin-complete-line"><span class="welcome-emphasis">Check-in Complete!</span></p>
-      <p class="lobby-guidance lobby-guidance--compact">continue to the next circle.</p>
+      <p class="checkin-complete-line"><span class="welcome-emphasis">Check-in complete.</span></p>
+      <p class="lobby-guidance lobby-guidance--compact">Continue to the <span class="route-emphasis">Security Circle</span>.</p>
+    </div>
+
+    <div v-if="isSynchronizingSecurity" class="lobby-outside lobby-outside--sync">
+      <h2 class="lobby-location">Synchronizing with <span class="route-emphasis">Security Circle</span>...</h2>
+      <div class="sync-icon-wrap">
+        <div class="sync-spinner-dual">
+          <div class="sync-circle sync-circle-inner"></div>
+          <div class="sync-circle sync-circle-outer"></div>
+        </div>
+      </div>
+      <p class="lobby-guidance sync-text">
+        Securing connection
+      </p>
     </div>
 
     <div v-if="isSecurityReadyScreen" class="lobby-outside">
@@ -205,13 +290,32 @@ const showBottomAction = computed(
         <FeatherIcon :name="activeStage.icon" size="56" color="#f1c98a" />
       </div>
       <p class="lobby-guidance">
-        Remain inside the Security Circle and tap Begin Sucurty Screening to beging the security screening process
+        You're inside the <span class="route-emphasis">Security Circle</span>.
+      </p>
+      <p class="lobby-guidance">
+        Your device is synchronized and ready.
+      </p>
+      <p class="lobby-guidance">
+        Tap below to begin security screening.
       </p>
     </div>
 
     <div v-if="isSecurityCircle && securityComplete" class="lobby-outside lobby-outside--checkin-complete">
-      <p class="checkin-complete-line"><span class="welcome-emphasis">Security Cleared!</span></p>
-      <p class="lobby-guidance lobby-guidance--compact">proceed to departure lounge.</p>
+      <p class="checkin-complete-line"><span class="welcome-emphasis">Security screening complete.</span></p>
+      <p class="lobby-guidance lobby-guidance--compact">Continue to the <span class="route-emphasis">Departure Lounge Circle</span>.</p>
+    </div>
+
+    <div v-if="isSynchronizingLounge" class="lobby-outside lobby-outside--sync">
+      <h2 class="lobby-location">Synchronizing with <span class="route-emphasis">Departure Lounge Circle</span>...</h2>
+      <div class="sync-icon-wrap">
+        <div class="sync-spinner-dual">
+          <div class="sync-circle sync-circle-inner"></div>
+          <div class="sync-circle sync-circle-outer"></div>
+        </div>
+      </div>
+      <p class="lobby-guidance sync-text">
+        Securing connection
+      </p>
     </div>
 
     <div v-if="isLoungeCircle" class="lobby-outside">
@@ -219,8 +323,11 @@ const showBottomAction = computed(
       <div class="icon-wrap icon-wrap--outside">
         <FeatherIcon :name="activeStage.icon" size="56" color="#f1c98a" />
       </div>
-      <p class="lobby-guidance lobby-guidance--waiting">
-        Please wait in the Departure Lounge Circle until boarding begins
+      <p class="lobby-guidance">
+        You're inside the <span class="route-emphasis">Departure Lounge Circle</span>.
+      </p>
+      <p class="lobby-guidance">
+        Please remain inside the Circle until boarding begins.
       </p>
       <p class="countdown-display">
         Boarding will begin in <span class="countdown-timer">{{ loungeCountdownSeconds }}s</span>
@@ -228,62 +335,107 @@ const showBottomAction = computed(
     </div>
 
     <div v-if="isNowBoarding" class="lobby-outside">
-      <h2 class="lobby-location lobby-location--boarding">NOW BOARDING!</h2>
+      <h2 class="lobby-location lobby-location--boarding">Boarding has begun.</h2>
       <div class="icon-wrap icon-wrap--outside">
-        <FeatherIcon name="activity" size="56" color="#f1c98a" />
+        <FeatherIcon name="play-circle" size="56" color="#f1c98a" />
       </div>
+      <p class="lobby-guidance">
+        Continue to the <span class="route-emphasis">Boarding Circle</span>.
+      </p>
+    </div>
+
+    <div v-if="isSynchronizingBoarding" class="lobby-outside lobby-outside--sync">
+      <h2 class="lobby-location">Synchronizing with <span class="route-emphasis">Boarding Circle</span>...</h2>
+      <div class="sync-icon-wrap">
+        <div class="sync-spinner-dual">
+          <div class="sync-circle sync-circle-inner"></div>
+          <div class="sync-circle sync-circle-outer"></div>
+        </div>
+      </div>
+      <p class="lobby-guidance sync-text">
+        Securing connection
+      </p>
     </div>
 
     <div v-if="isBoardingCircleReady" class="lobby-outside">
       <h2 class="lobby-location">Boarding Circle</h2>
       <div class="icon-wrap icon-wrap--outside">
-        <FeatherIcon name="plane" size="56" color="#f1c98a" />
+      <FeatherIcon name="log-in" size="56" color="#f1c98a" />
       </div>
       <p class="lobby-guidance">
-        Tap the button below to Generate your boarding pass and show it to the attendant.
+        You're inside the <span class="route-emphasis">Boarding Circle</span>.
+      </p>
+      <p class="lobby-guidance">
+        Your device is synchronized and ready.
+      </p>
+      <p class="lobby-guidance">
+        Tap below to generate your <span class="route-emphasis">boarding credential</span>.
       </p>
     </div>
 
-    <div v-if="isBoardingProcessing" class="lobby-outside lobby-outside--processing">
-      <div class="icon-wrap icon-wrap--outside">
-        <FeatherIcon name="loader" size="54" color="#f1c98a" class="icon-spin" />
+    <div v-if="isBoardingProcessing" class="lobby-outside lobby-outside--sync">
+      <h2 class="lobby-location">Generating your boarding pass...</h2>
+      <div class="sync-icon-wrap">
+        <FeatherIcon name="loader" size="56" color="#f1c98a" class="icon-spin" />
       </div>
-      <p class="lobby-guidance lobby-guidance--generating">
-        Generating your unique Boarding pass<span class="dot-animation">...</span>
+      <p class="lobby-guidance sync-text">
+        Please wait
       </p>
     </div>
 
     <div v-if="isBoardingPassShowing" class="lobby-outside">
       <h2 class="lobby-location">Boarding Pass</h2>
-      <div class="boarding-pass-qr">
-        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="qr-placeholder">
-          <rect width="100" height="100" fill="white" />
-          <rect x="10" y="10" width="20" height="20" fill="black" />
-          <rect x="70" y="10" width="20" height="20" fill="black" />
-          <rect x="10" y="70" width="20" height="20" fill="black" />
-          <circle cx="50" cy="50" r="15" fill="black" opacity="0.5" />
-        </svg>
+      <img src="@/images/pass.svg" alt="Boarding Pass QR Code" class="boarding-pass-image" />
+      <div class="boarding-pass-container">
+        <div class="boarding-pass-details">
+          <div class="pass-detail">
+            <p class="detail-label">Passenger</p>
+            <p class="detail-value">{{ passengerFirstName }}</p>
+          </div>
+          <div class="pass-detail">
+            <p class="detail-label">Flight</p>
+            <p class="detail-value">M102</p>
+          </div>
+        </div>
       </div>
       <p class="lobby-guidance">
-        Show this pass to the attendant.
+        Your boarding pass is ready.
+      </p>
+      <p class="lobby-guidance">
+        Present this pass for boarding.
       </p>
     </div>
 
     <div v-if="isOnboard" class="lobby-outside">
-      <h2 class="lobby-location">You are Onboard</h2>
+      <h2 class="lobby-location">Welcome aboard.</h2>
       <div class="icon-wrap icon-wrap--outside">
         <FeatherIcon :name="activeStage.icon" size="54" color="#f1c98a" />
       </div>
-      <p class="completion-message">Boarding complete</p>
+      <p class="mission-flight">Flight M102</p>
+      
+      <div class="mission-card">
+        <div class="mission-details">
+          <div class="mission-field">
+            <p class="mission-label">Seat</p>
+            <p class="mission-value">14A</p>
+          </div>
+          <div class="mission-field">
+            <p class="mission-label">Mission</p>
+            <p class="mission-value">LEO-1</p>
+          </div>
+        </div>
+      </div>
+      
+      <p class="completion-message">Final launch preparations underway.</p>
     </div>
 
     <section
-      v-if="!isCheckInReadyScreen && !isSecurityReadyScreen && !isLoungeReadyScreen && !isLoungeCountdown && !isBoardingCircleReady && !isBoardingProcessing && !isBoardingPassShowing && !isLobbyCircle"
+      v-if="!isCheckInReadyScreen && !isSecurityReadyScreen && !isLoungeReadyScreen && !isLoungeCountdown && !isBoardingCircleReady && !isBoardingProcessing && !isBoardingPassShowing && !isLobbyCircle && !isSynchronizingCheckIn && !isSynchronizingSecurity && !isSynchronizingLounge && !isSynchronizingBoarding"
       :class="[
         'stage-panel',
         {
           'stage-panel--welcome': isWelcome,
-          'stage-panel--centered': isLobbyCircle || (isCheckInCircle && checkInComplete) || (isSecurityCircle && securityComplete),
+          'stage-panel--centered': isLobbyCircle || (isCheckInCircle && checkInComplete) || (isSecurityCircle && securityComplete) || isOnboard,
         },
       ]"
     >
@@ -318,31 +470,25 @@ const showBottomAction = computed(
         </div>
       </template>
 
+      <template v-else-if="isCheckInProcessing">
+        <p class="checkin-process-title">{{ dynamicProcessingTitle }}</p>
+      </template>
+
       <template v-else>
-        <template v-if="isCheckInCircle && checkInComplete">
-          <p class="next-label">Next circle</p>
-          <h3 class="dominant route-name">Security Circle</h3>
-          <p class="instruction">Follow the line to Security Circle, tap the button below once you are there.</p>
-        </template>
-
-        <template v-else-if="isCheckInProcessing">
-          <p class="checkin-process-title">Check-in in process</p>
-        </template>
-
-        <template v-else-if="isSecurityCircle && securityComplete">
-          <p class="next-label">Next circle</p>
-          <h3 class="dominant route-name">Departure Lounge Circle</h3>
-          <p class="instruction">Follow the blue line to the Departure Lounge Cirlce and tap the button below once you are there.</p>
+        <template v-if="isSecurityCircle && securityComplete">
+          <h3 class="dominant route-name boarding-center">Departure Lounge Circle</h3>
+          <p class="instruction boarding-center">Walk to the <span class="route-emphasis">Departure Lounge Circle</span>.</p>
+          <p class="instruction boarding-center">Follow the <span class="route-emphasis">Blue Route</span>. Once inside, tap the button below.</p>
         </template>
 
         <template v-else-if="isSecurityProcessing">
-          <p class="checkin-process-title">Security screening in process</p>
+          <p class="checkin-process-title">{{ dynamicProcessingTitle }}</p>
         </template>
 
         <template v-else-if="isNowBoarding">
-          <p class="next-label">Next circle</p>
-          <h3 class="dominant route-name">Boarding Circle</h3>
-          <p class="instruction">Follow the blue line to the boarding circle. Tap the button below once you are there.</p>
+          <h3 class="dominant route-name boarding-center">Boarding Circle</h3>
+          <p class="instruction boarding-center">Walk to the <span class="route-emphasis">Boarding Circle</span>.</p>
+          <p class="instruction boarding-center">Follow the <span class="route-emphasis">Blue Route</span>. Once inside, tap the button below.</p>
         </template>
 
         <template v-else-if="isLoungeCircle && loungeReady && !isLoungeCountdown">
@@ -354,16 +500,14 @@ const showBottomAction = computed(
         </template>
 
         <template v-else-if="routeInstruction && !isLobbyCircle">
-          <p class="where-lead">Current location</p>
-          <h2 class="where-name">{{ routeInstruction.current }}</h2>
+          <h3 :class="['dominant', 'route-name', { 'boarding-center': isCheckInCircle && checkInComplete }]"><span class="route-emphasis">{{ routeInstruction.route }}</span></h3>
 
-          <p class="next-label">Assigned route</p>
-          <h3 class="dominant route-name">{{ routeInstruction.route }}</h3>
-
-          <p class="next-label">Next circle</p>
-          <p class="instruction">{{ routeInstruction.destination }}</p>
-          <p class="instruction">{{ routeInstruction.detail }}</p>
-          <p class="supporting">Estimated walk: {{ routeInstruction.walk }}</p>
+          <p v-if="!(isCheckInCircle && checkInComplete)" class="next-label">Next circle</p>
+          <p v-if="!(isCheckInCircle && checkInComplete)" class="instruction">{{ routeInstruction.destination }}</p>
+          <p v-if="!(isCheckInCircle && checkInComplete)" class="instruction">{{ routeInstruction.detail }}</p>
+          <p v-if="isCheckInCircle && checkInComplete" :class="['instruction', 'boarding-center']">
+            Walk to the <span class="route-emphasis">Security Circle</span>. Follow the <span class="route-emphasis">Blue Route</span>. Once inside, tap the button below.
+          </p>
         </template>
 
         <template v-else-if="processContext">
@@ -373,14 +517,8 @@ const showBottomAction = computed(
         </template>
 
         <template v-else-if="isOnboard">
-          <p class="next-label">Seat assignment</p>
-          <h3 class="dominant">Seat 14A</h3>
-
           <p class="next-label">Live launch countdown</p>
           <h3 class="dominant countdown">{{ liveCountdown }}</h3>
-          
-          <p class="supporting">Launch on schedule.</p>
-          <p class="supporting">Enjoy the view.</p>
         </template>
       </template>
 
@@ -439,7 +577,8 @@ const showBottomAction = computed(
 
 .route-wrap {
   overflow-x: auto;
-  padding-bottom: 2px;
+  padding-top: 16px;
+  padding-bottom: 16px;
 }
 
 .route-line {
@@ -649,6 +788,31 @@ const showBottomAction = computed(
   font-size: 0.95rem;
 }
 
+.guidance-box {
+  border: 2px solid #f1c98a;
+  border-radius: 16px;
+  padding: 20px 16px;
+  margin: 20px 0;
+  text-align: center;
+}
+
+.guidance-box .lobby-guidance {
+  margin: 0;
+  max-width: none;
+}
+
+.guidance-box .lobby-guidance + .lobby-guidance {
+  margin-top: 12px;
+}
+
+.guidance-box-title {
+  margin: 0 0 16px 0;
+  font-size: 1.3rem;
+  color: #ffffff;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
 .countdown-display {
   margin: 8px 0 0;
   font-size: 1.4rem;
@@ -741,6 +905,66 @@ const showBottomAction = computed(
 
 .instruction + .instruction {
   margin-top: 8px;
+}
+
+.boarding-center {
+  text-align: center;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.boarding-pass-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  margin: 20px 0;
+  padding: 0 20px;
+}
+
+.boarding-pass-image {
+  width: 144px;
+  height: 144px;
+  object-fit: contain;
+  margin-top: 20px;
+}
+
+.boarding-pass-details {
+  width: 100%;
+  max-width: 280px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 20px;
+  background: rgba(241, 201, 138, 0.03);
+  border-radius: 12px;
+}
+
+.pass-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(231, 231, 231, 0.6);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.detail-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #f1c98a;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.detail-value.ready {
+  color: #f1c98a;
 }
 
 .route-emphasis {
@@ -937,6 +1161,163 @@ const showBottomAction = computed(
   font-size: 1.1rem;
   font-weight: 500;
   color: rgba(231, 231, 231, 0.95);
+}
+
+.lobby-outside--sync {
+  min-height: 240px;
+  justify-content: center;
+}
+
+.sync-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 24px 0;
+}
+
+.sync-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse-sync 3s ease-in-out infinite;
+}
+
+.sync-spinner-dual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+
+.sync-circle {
+  position: absolute;
+  border: 2px solid #f1c98a;
+  border-radius: 50%;
+}
+
+.sync-circle-inner {
+  width: 50px;
+  height: 50px;
+  animation: pulse-inner 2s ease-in-out infinite;
+  opacity: 0.7;
+}
+
+.sync-circle-outer {
+  width: 70px;
+  height: 70px;
+  animation: pulse-outer 3s ease-in-out infinite;
+  opacity: 0.5;
+}
+
+@keyframes pulse-sync {
+  0% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse-inner {
+  0% {
+    opacity: 0.7;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse-outer {
+  0% {
+    opacity: 0.4;
+    transform: scale(1.1);
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+}
+
+.sync-text {
+  font-size: 1rem;
+  color: rgba(231, 231, 231, 0.8);
+  text-align: center;
+  margin: 0;
+  max-width: 34ch;
+}
+
+.mission-flight {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #f1c98a;
+  margin: 12px 0 24px;
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+
+.mission-card {
+  width: 100%;
+  max-width: 300px;
+  margin: 24px 0;
+  padding: 20px;
+  background: rgba(241, 201, 138, 0.03);
+  border-radius: 12px;
+}
+
+.mission-title {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #f1c98a;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 0 0 16px 0;
+  text-align: center;
+}
+
+.mission-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.mission-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+}
+
+.mission-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: rgba(231, 231, 231, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.mission-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #f1c98a;
+  margin: 0;
+  letter-spacing: -0.01em;
 }
 
 @media (max-width: 360px) {

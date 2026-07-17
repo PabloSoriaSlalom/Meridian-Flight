@@ -22,12 +22,16 @@ export type JourneyStage = {
 export type JourneyState =
   | 'welcome'
   | 'lobbyCircle'
+  | 'synchronizingCheckIn'
   | 'checkInCircle'
   | 'checkInProcessing'
   | 'securityCircle'
+  | 'synchronizingSecurity'
   | 'securityProcessing'
+  | 'synchronizingLounge'
   | 'loungeCircle'
   | 'nowBoarding'
+  | 'synchronizingBoarding'
   | 'boardingCircle'
   | 'boardingProcessing'
   | 'onboard'
@@ -53,7 +57,7 @@ const stages: JourneyStage[] = [
     id: 1,
     kind: 'journey',
     routeLabel: 'Lobby',
-    icon: 'circle',
+    icon: 'users',
     locationLead: '',
     location: 'Passenger Lobby Circle',
     destination: 'Check-in Circle B',
@@ -73,7 +77,13 @@ const stages: JourneyStage[] = [
     destinationLabel: '',
     instruction: '',
     actionLabel: null,
-    processingSequence: [],
+    processingSequence: [
+      'Identity verified',
+      'Baggage registered',
+      'Confirming travel clearance',
+      'Preparing boarding credentials',
+      'Check-in complete',
+    ],
   },
   {
     id: 3,
@@ -126,10 +136,11 @@ const CHECK_IN_SEQUENCE = [
 ]
 
 const SECURITY_SEQUENCE = [
-  'Validating boarding credential',
-  'Credential confirmed',
-  'Completing screening',
-  'Security cleared',
+  'Verifying identity',
+  'Validating boarding credentials',
+  'Scanning passenger',
+  'Screening carry-on items',
+  'Security clearance granted',
 ]
 
 const BOARDING_SEQUENCE = [
@@ -294,16 +305,16 @@ const majorStageIndex = computed(() => {
   if (journeyState.value === 'lobbyCircle') {
     return 0
   }
-  if (journeyState.value === 'checkInCircle' || journeyState.value === 'checkInProcessing') {
+  if (journeyState.value === 'synchronizingCheckIn' || journeyState.value === 'checkInCircle' || journeyState.value === 'checkInProcessing') {
     return 1
   }
-  if (journeyState.value === 'securityCircle' || journeyState.value === 'securityProcessing') {
+  if (journeyState.value === 'synchronizingSecurity' || journeyState.value === 'securityCircle' || journeyState.value === 'securityProcessing') {
     return 2
   }
-  if (journeyState.value === 'loungeCircle') {
+  if (journeyState.value === 'synchronizingLounge' || journeyState.value === 'loungeCircle') {
     return 3
   }
-  if (journeyState.value === 'nowBoarding' || journeyState.value === 'boardingCircle' || journeyState.value === 'boardingProcessing') {
+  if (journeyState.value === 'nowBoarding' || journeyState.value === 'synchronizingBoarding' || journeyState.value === 'boardingCircle' || journeyState.value === 'boardingProcessing') {
     return 4
   }
   return 4
@@ -461,9 +472,16 @@ async function advanceJourney(): Promise<void> {
   }
 
   if (journeyState.value === 'lobbyCircle') {
-    journeyState.value = 'checkInCircle'
+    journeyState.value = 'synchronizingCheckIn'
     checkInComplete.value = false
     securityRoute.value = null
+    
+    // Auto-advance after 3 seconds
+    setTimeout(() => {
+      if (journeyState.value === 'synchronizingCheckIn') {
+        journeyState.value = 'checkInCircle'
+      }
+    }, 3000)
     return
   }
 
@@ -474,9 +492,17 @@ async function advanceJourney(): Promise<void> {
       return
     }
 
-    journeyState.value = 'securityCircle'
-    securityComplete.value = false
-    securityRoute.value = 'standard'
+    // Moving from check-in to security - show sync screen first
+    journeyState.value = 'synchronizingSecurity'
+    
+    // Auto-advance after 3 seconds to security circle
+    setTimeout(() => {
+      if (journeyState.value === 'synchronizingSecurity') {
+        journeyState.value = 'securityCircle'
+        securityComplete.value = false
+        securityRoute.value = 'standard'
+      }
+    }, 3000)
     return
   }
 
@@ -487,9 +513,17 @@ async function advanceJourney(): Promise<void> {
       return
     }
 
-    journeyState.value = 'loungeCircle'
-    loungeReady.value = true
-    startLoungeCountdown()
+    // Moving from security to lounge - show sync screen first
+    journeyState.value = 'synchronizingLounge'
+    
+    // Auto-advance after 3 seconds to lounge circle
+    setTimeout(() => {
+      if (journeyState.value === 'synchronizingLounge') {
+        journeyState.value = 'loungeCircle'
+        loungeReady.value = true
+        startLoungeCountdown()
+      }
+    }, 3000)
     return
   }
 
@@ -498,8 +532,15 @@ async function advanceJourney(): Promise<void> {
   }
 
   if (journeyState.value === 'nowBoarding') {
-    journeyState.value = 'boardingCircle'
-    boardingCircleReady.value = true
+    journeyState.value = 'synchronizingBoarding'
+    
+    // Auto-advance after 3 seconds to boarding circle
+    setTimeout(() => {
+      if (journeyState.value === 'synchronizingBoarding') {
+        journeyState.value = 'boardingCircle'
+        boardingCircleReady.value = true
+      }
+    }, 3000)
     return
   }
 
