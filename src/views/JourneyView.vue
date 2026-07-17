@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useFlightState } from '@/composables/useFlightState'
+import FeatherIcon from '@/components/FeatherIcon.vue'
 import welcomeLogo from '@/images/MS_logo.png'
 
 const {
@@ -96,6 +97,10 @@ const processContext = computed(() => {
 })
 
 const primaryActionLabel = computed(() => {
+  if (isLobbyCircle.value) {
+    return "I'm Inside the Circle"
+  }
+
   if (isCheckInCircle.value && !checkInComplete.value) {
     return 'Check me in'
   }
@@ -158,7 +163,7 @@ const showBottomAction = computed(
           ]"
         >
           <span class="stop-dot">
-            <v-icon v-if="index < routeStageIndex" size="13">mdi-check</v-icon>
+            <FeatherIcon v-if="index < routeStageIndex" name="check-circle" size="16" color="#f1c98a" />
           </span>
           <span class="stop-label">{{ stage.routeLabel }}</span>
           <span v-if="index < routeStages.length - 1" class="stop-link"></span>
@@ -167,22 +172,23 @@ const showBottomAction = computed(
     </div>
 
     <div v-if="isLobbyCircle" class="lobby-outside lobby-outside--lobby">
-      <h2 class="lobby-location">Passenger Lobby Circle</h2>
+      <h2 class="lobby-location">Welcome to the Meridian Passenger Lobby Circle</h2>
       <div class="icon-wrap icon-wrap--outside">
-        <v-icon :icon="activeStage.icon" size="54" color="#F9C784" />
+        <FeatherIcon :name="activeStage.icon" size="56" color="#f1c98a" />
       </div>
-      <p class="lobby-you-are">You are here</p>
       <p class="lobby-guidance">
-        The Passenger Lobby Circle is the main hub. You will be guided where to go next from here.
+        Meridian guides every passenger through a series of Circles connected by dedicated Routes. Each Circle securely synchronizes your device with the next stage of departure.
+      </p>
+      <p class="lobby-guidance">
+        Follow the <span class="route-emphasis">Blue Route</span> to the <span class="route-emphasis">Check-in Circle</span>. Once inside, tap <span class="route-emphasis">I'm Inside the Circle</span> to begin the check-in process.
       </p>
     </div>
 
     <div v-if="isCheckInReadyScreen" class="lobby-outside">
       <h2 class="lobby-location">Check-in Circle</h2>
       <div class="icon-wrap icon-wrap--outside">
-        <v-icon :icon="activeStage.icon" size="54" color="#F9C784" />
+        <FeatherIcon :name="activeStage.icon" size="56" color="#f1c98a" />
       </div>
-      <p class="lobby-you-are">You are here</p>
       <p class="lobby-guidance">
         The Check-in Circle lets you check in to your flight. Tap below to begin check-in.
       </p>
@@ -196,9 +202,8 @@ const showBottomAction = computed(
     <div v-if="isSecurityReadyScreen" class="lobby-outside">
       <h2 class="lobby-location">Security Circle</h2>
       <div class="icon-wrap icon-wrap--outside">
-        <v-icon :icon="activeStage.icon" size="54" color="#F9C784" />
+        <FeatherIcon :name="activeStage.icon" size="56" color="#f1c98a" />
       </div>
-      <p class="lobby-you-are">You are here</p>
       <p class="lobby-guidance">
         Remain inside the Security Circle and tap Begin Sucurty Screening to beging the security screening process
       </p>
@@ -212,9 +217,8 @@ const showBottomAction = computed(
     <div v-if="isLoungeCircle" class="lobby-outside">
       <h2 class="lobby-location">Departure Lounge Circle</h2>
       <div class="icon-wrap icon-wrap--outside">
-        <v-icon :icon="activeStage.icon" size="54" color="#F9C784" />
+        <FeatherIcon :name="activeStage.icon" size="56" color="#f1c98a" />
       </div>
-      <p class="lobby-you-are">You are here</p>
       <p class="lobby-guidance lobby-guidance--waiting">
         Please wait in the Departure Lounge Circle until boarding begins
       </p>
@@ -226,16 +230,15 @@ const showBottomAction = computed(
     <div v-if="isNowBoarding" class="lobby-outside">
       <h2 class="lobby-location lobby-location--boarding">NOW BOARDING!</h2>
       <div class="icon-wrap icon-wrap--outside">
-        <v-icon icon="mdi-run" size="54" color="#F9C784" />
+        <FeatherIcon name="activity" size="56" color="#f1c98a" />
       </div>
     </div>
 
     <div v-if="isBoardingCircleReady" class="lobby-outside">
       <h2 class="lobby-location">Boarding Circle</h2>
       <div class="icon-wrap icon-wrap--outside">
-        <v-icon icon="mdi-airplane-takeoff" size="54" color="#F9C784" />
+        <FeatherIcon name="plane" size="56" color="#f1c98a" />
       </div>
-      <p class="lobby-you-are">You are here</p>
       <p class="lobby-guidance">
         Tap the button below to Generate your boarding pass and show it to the attendant.
       </p>
@@ -243,7 +246,7 @@ const showBottomAction = computed(
 
     <div v-if="isBoardingProcessing" class="lobby-outside lobby-outside--processing">
       <div class="icon-wrap icon-wrap--outside">
-        <v-icon icon="mdi-loading" size="54" color="#F9C784" class="icon-spin" />
+        <FeatherIcon name="loader" size="54" color="#f1c98a" class="icon-spin" />
       </div>
       <p class="lobby-guidance lobby-guidance--generating">
         Generating your unique Boarding pass<span class="dot-animation">...</span>
@@ -269,13 +272,13 @@ const showBottomAction = computed(
     <div v-if="isOnboard" class="lobby-outside">
       <h2 class="lobby-location">You are Onboard</h2>
       <div class="icon-wrap icon-wrap--outside">
-        <v-icon :icon="activeStage.icon" size="54" color="#F9C784" />
+        <FeatherIcon :name="activeStage.icon" size="54" color="#f1c98a" />
       </div>
       <p class="completion-message">Boarding complete</p>
     </div>
 
     <section
-      v-if="!isCheckInReadyScreen && !isSecurityReadyScreen && !isLoungeReadyScreen && !isLoungeCountdown && !isBoardingCircleReady && !isBoardingProcessing && !isBoardingPassShowing"
+      v-if="!isCheckInReadyScreen && !isSecurityReadyScreen && !isLoungeReadyScreen && !isLoungeCountdown && !isBoardingCircleReady && !isBoardingProcessing && !isBoardingPassShowing && !isLobbyCircle"
       :class="[
         'stage-panel',
         {
@@ -285,7 +288,7 @@ const showBottomAction = computed(
       ]"
     >
       <div v-if="!isWelcome && !isLobbyCircle && !isCheckInCircle && !isCheckInProcessing && !isSecurityCircle && !isSecurityProcessing && !isLoungeCircle && !isNowBoarding && !isOnboard" class="icon-wrap">
-        <v-icon :icon="activeStage.icon" size="54" color="#F9C784" />
+        <FeatherIcon :name="activeStage.icon" size="54" color="#f1c98a" />
       </div>
 
       <template v-if="isWelcome">
@@ -293,12 +296,13 @@ const showBottomAction = computed(
           <div class="welcome-content">
             <img :src="welcomeLogo" alt="Meridian Flight" class="welcome-logo" />
             <p class="where-lead">{{ welcomeGreeting }}</p>
-            <h2 class="where-name">Welcome to Meridian Space Port</h2>
-            <p class="welcome-flight-meta">Flight M102</p>
-            <p class="welcome-launch-time">Launch 10:45 AM</p>
-            <p class="welcome-status">✓ On Schedule</p>
+            <h2 class="where-name">Welcome to Meridian Spaceport</h2>
+            <p class="welcome-flight-info">Flight M102</p>
             <p class="instruction">
-              Head over to the <span class="welcome-emphasis">Passenger Lobby Circle</span> and tap Begin Arrival once you are there.
+              Your journey begins at the <span class="welcome-emphasis">Passenger Lobby Circle</span>, a designated area within the spaceport.
+            </p>
+            <p class="instruction">
+              Walk into the Circle. Once inside, tap <span class="action-emphasis">I'm Inside the Circle</span> to begin your journey.
             </p>
 
             <v-btn
@@ -308,20 +312,14 @@ const showBottomAction = computed(
               class="action-btn action-btn--welcome"
               @click="advanceJourney"
             >
-              Begin Arrival
+              I'm Inside the Circle
             </v-btn>
           </div>
         </div>
       </template>
 
       <template v-else>
-        <template v-if="routeInstruction && isLobbyCircle">
-          <p class="next-label">Next circle</p>
-          <h3 class="dominant route-name">{{ routeInstruction.destination }}</h3>
-          <p class="instruction">{{ routeInstruction.detail }}</p>
-        </template>
-
-        <template v-else-if="isCheckInCircle && checkInComplete">
+        <template v-if="isCheckInCircle && checkInComplete">
           <p class="next-label">Next circle</p>
           <h3 class="dominant route-name">Security Circle</h3>
           <p class="instruction">Follow the line to Security Circle, tap the button below once you are there.</p>
@@ -355,7 +353,7 @@ const showBottomAction = computed(
           <p class="supporting">Launch remains on schedule.</p>
         </template>
 
-        <template v-else-if="routeInstruction">
+        <template v-else-if="routeInstruction && !isLobbyCircle">
           <p class="where-lead">Current location</p>
           <h2 class="where-name">{{ routeInstruction.current }}</h2>
 
@@ -425,18 +423,18 @@ const showBottomAction = computed(
 .journey-view {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding-bottom: 18px;
+  gap: 20px;
+  padding-bottom: 24px;
 }
 
 .journey-view--welcome {
-  flex: 1;
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  height: auto;
-  min-height: 0;
-  padding-bottom: 0;
+  gap: 0;
+  padding: 0;
+  margin: 0;
 }
 
 .route-wrap {
@@ -462,47 +460,47 @@ const showBottomAction = computed(
 }
 
 .stop-dot {
-  width: 22px;
-  height: 22px;
+  width: 16px;
+  height: 16px;
   border-radius: 999px;
   border: 1px solid rgba(231, 231, 231, 0.25);
   background: rgba(72, 86, 150, 0.28);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #f9c784;
+  color: #f1c98a;
   z-index: 1;
 }
 
 .stop-label {
-  font-size: 0.68rem;
+  font-size: 0.48rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(231, 231, 231, 0.56);
+  color: rgba(231, 231, 231, 0.42);
 }
 
 .stop-link {
   position: absolute;
-  top: 11px;
+  top: 8px;
   left: 50%;
   width: 100%;
   height: 2px;
-  background: rgba(231, 231, 231, 0.2);
+  background: rgba(231, 231, 231, 0.08);
 }
 
 .route-stop.completed .stop-dot {
-  background: rgba(249, 199, 132, 0.22);
-  border-color: rgba(249, 199, 132, 0.75);
+  background: rgba(241, 201, 138, 0.22);
+  border-color: rgba(241, 201, 138, 0.75);
 }
 
 .route-stop.current .stop-dot {
-  background: #f9c784;
-  border-color: #f9c784;
-  box-shadow: 0 0 0 3px rgba(249, 199, 132, 0.2);
+  background: #f1c98a;
+  border-color: #f1c98a;
+  box-shadow: 0 0 0 3px rgba(241, 201, 138, 0.2);
 }
 
 .route-stop.current .stop-label {
-  color: rgba(249, 199, 132, 0.92);
+  color: rgba(241, 201, 138, 0.92);
   font-weight: 700;
 }
 
@@ -511,15 +509,17 @@ const showBottomAction = computed(
 }
 
 .route-stop.completed .stop-link {
-  background: rgba(249, 199, 132, 0.7);
+  background: rgba(241, 201, 138, 0.35);
 }
 
 .stage-panel {
-  background: rgba(16, 25, 52, 0.9);
-  border: 1px solid rgba(231, 231, 231, 0.12);
-  border-radius: 22px;
-  padding: 20px 18px;
+  background: linear-gradient(135deg, rgba(10, 15, 27, 0.98), rgba(26, 42, 74, 0.95));
+  border: 1px solid rgba(241, 201, 138, 0.15);
+  border-radius: 28px;
+  padding: 36px 28px;
   color: #e7e7e7;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
 .stage-panel--centered {
@@ -527,25 +527,28 @@ const showBottomAction = computed(
 }
 
 .stage-panel--welcome {
-  flex: 0 1 auto;
-  height: auto;
-  min-height: 0;
-  border-radius: 0;
-  border: 0;
-  padding: 0;
-  background: transparent;
+  position: relative;
+  z-index: 1;
+  flex: 1;
   display: flex;
-  align-items: stretch;
+  border-radius: 0;
+  border: none;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  box-shadow: none;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
 .welcome-hero {
   position: relative;
-  flex: 0 1 auto;
-  height: 100%;
-  min-height: 100%;
-  background: transparent;
   width: 100%;
+  height: 100%;
+  background: transparent;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
 }
@@ -553,29 +556,37 @@ const showBottomAction = computed(
 .welcome-content {
   position: relative;
   z-index: 1;
-  width: min(360px, calc(100% - 48px));
-  padding: 8px 8px;
+  width: min(340px, calc(100% - 32px));
+  max-height: calc(100% - 32px);
+  padding: 0;
+  margin: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   text-align: center;
 }
 
 .icon-wrap {
-  width: 80px;
-  height: 80px;
-  border-radius: 20px;
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(72, 86, 150, 0.45);
-  border: 1px solid rgba(249, 199, 132, 0.26);
-  margin-bottom: 14px;
+  background: rgba(241, 201, 138, 0.12);
+  border: 1.5px solid rgba(241, 201, 138, 0.25);
+  margin-bottom: 16px;
+  transition: all 0.3s ease;
+}
+
+.icon-wrap:hover {
+  border-color: rgba(241, 201, 138, 0.45);
+  background: rgba(241, 201, 138, 0.18);
 }
 
 .icon-wrap--outside {
-  margin: 10px 0 6px;
+  margin: 14px 0 10px;
 }
 
 .lobby-outside {
@@ -599,19 +610,21 @@ const showBottomAction = computed(
 
 .lobby-location {
   margin: 0;
-  font-size: 1.46rem;
+  font-size: 1.6rem;
   color: #ffffff;
+  font-weight: 500;
+  letter-spacing: 0.02em;
 }
 
 .lobby-location--boarding {
-  font-size: 2rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
+  font-size: 1.7rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
 }
 
 .lobby-you-are {
   margin: 0;
-  color: #f9c784;
+  color: #f1c98a;
   letter-spacing: 0.04em;
   text-transform: lowercase;
 }
@@ -621,6 +634,10 @@ const showBottomAction = computed(
   max-width: 34ch;
   color: rgba(231, 231, 231, 0.9);
   line-height: 1.4;
+}
+
+.lobby-guidance + .lobby-guidance {
+  margin-top: 12px;
 }
 
 .lobby-guidance--compact {
@@ -641,10 +658,10 @@ const showBottomAction = computed(
 }
 
 .countdown-timer {
-  font-weight: 700;
-  color: #f9c784;
-  font-size: 1.8rem;
-  letter-spacing: 0.03em;
+  font-weight: 600;
+  color: #f1c98a;
+  font-size: 1.6rem;
+  letter-spacing: 0.02em;
 }
 
 .checkin-complete-line {
@@ -653,58 +670,49 @@ const showBottomAction = computed(
 }
 
 .welcome-logo {
-  width: min(210px, 74%);
+  width: min(260px, 75%);
   height: auto;
-  margin: 0 0 6px;
+  margin: 0 0 32px;
   border-radius: 6px;
 }
 
 .where-lead {
   margin: 0;
-  font-size: 1.06rem;
+  font-size: 1rem;
   color: rgba(231, 231, 231, 0.95);
 }
 
 .where-name {
-  margin: -4px 0 2px;
-  font-size: 2rem;
-  line-height: 1.08;
+  margin: 0;
+  font-size: 1.8rem;
+  line-height: 1.15;
   color: #ffffff;
+  font-weight: 500;
 }
 
-.welcome-status {
+.welcome-flight-info {
   margin: 2px 0 0;
-  color: #f9c784;
   font-size: 1rem;
-}
-
-.welcome-flight-meta {
-  margin: -6px 0 0;
-  font-size: 1rem;
-  letter-spacing: 0.05em;
-  color: rgba(138, 213, 255, 0.95);
-}
-
-.welcome-launch-time {
-  margin: -8px 0 0;
-  font-size: 0.98rem;
   letter-spacing: 0.04em;
-  color: rgba(231, 231, 231, 0.9);
+  color: #f1c98a;
 }
 
 .next-label {
-  margin: 0;
-  font-size: 0.72rem;
-  letter-spacing: 0.12em;
+  margin: 0 0 4px;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(231, 231, 231, 0.62);
+  color: rgba(231, 231, 231, 0.58);
+  font-weight: 500;
 }
 
 .dominant {
-  margin: 6px 0 10px;
+  margin: 0 0 20px;
   font-size: 2rem;
-  line-height: 1.05;
-  color: #f9c784;
+  line-height: 1;
+  font-weight: 600;
+  color: #f1c98a;
+  letter-spacing: -0.01em;
 }
 
 .route-name {
@@ -718,17 +726,31 @@ const showBottomAction = computed(
 
 .completion-message {
   margin: 0 0 10px;
-  color: rgba(249, 199, 132, 0.98);
+  color: rgba(241, 201, 138, 0.98);
   font-size: 0.9rem;
   letter-spacing: 0.03em;
 }
 
 .instruction {
-  margin: 2px 0 0;
-  font-size: 1.02rem;
-  line-height: 1.42;
+  margin: 20px 0 0;
+  font-size: 1rem;
+  line-height: 1.5;
   max-width: 33ch;
-  color: rgba(231, 231, 231, 0.9);
+  color: rgba(231, 231, 231, 0.88);
+}
+
+.instruction + .instruction {
+  margin-top: 8px;
+}
+
+.route-emphasis {
+  font-weight: 600;
+  color: #f1c98a;
+}
+
+.action-emphasis {
+  font-weight: 600;
+  color: #f1c98a;
 }
 
 .welcome-emphasis {
@@ -737,10 +759,11 @@ const showBottomAction = computed(
 }
 
 .supporting {
-  margin: 2px 0 0;
+  margin: 4px 0 0;
   max-width: 34ch;
-  line-height: 1.38;
-  color: rgba(231, 231, 231, 0.78);
+  line-height: 1.5;
+  color: rgba(231, 231, 231, 0.75);
+  font-size: 0.95rem;
 }
 
 .onboard-meta {
@@ -764,33 +787,34 @@ const showBottomAction = computed(
 }
 
 .processing-checklist {
-  margin-top: 14px;
-  border-top: 1px solid rgba(231, 231, 231, 0.12);
-  padding-top: 12px;
+  margin-top: 18px;
+  border-top: 1px solid rgba(231, 231, 231, 0.1);
+  padding-top: 16px;
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 10px;
 }
 
 .processing-checklist--bare {
-  margin-top: 6px;
+  margin-top: 8px;
   border-top: 0;
   padding-top: 0;
 }
 
 .checkin-process-title {
-  margin: 2px 0 10px;
-  font-size: 1.2rem;
+  margin: 4px 0 12px;
+  font-size: 1.25rem;
   font-weight: 600;
   color: rgba(231, 231, 231, 0.95);
+  letter-spacing: 0.02em;
 }
 
 .check-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  opacity: 0.55;
-  transition: opacity 0.25s ease;
+  gap: 12px;
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
 }
 
 .check-row.done,
@@ -801,7 +825,7 @@ const showBottomAction = computed(
 .check-symbol {
   width: 16px;
   text-align: center;
-  color: #f9c784;
+  color: #f1c98a;
   font-size: 0.95rem;
 }
 
@@ -821,18 +845,26 @@ const showBottomAction = computed(
 
 .outcome-lead {
   margin: 0 0 6px;
-  color: rgba(249, 199, 132, 0.98);
+  color: rgba(241, 201, 138, 0.98);
 }
 
 .action-btn {
-  background: linear-gradient(90deg, #fc7a1e, #f24c00);
-  color: #091022;
-  font-weight: 700;
-  letter-spacing: 0.03em;
+  background: linear-gradient(135deg, #4a5693 0%, #3a4682 100%);
+  color: #ffffff;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  box-shadow: 0 4px 16px rgba(74, 86, 147, 0.3);
+}
+
+.action-btn:hover {
+  box-shadow: 0 12px 32px rgba(74, 86, 147, 0.5);
+  transform: translateY(-2px);
 }
 
 .action-btn--welcome {
-  margin-top: 14px;
+  margin-top: 32px;
   width: 100%;
   max-width: 320px;
   transform: none !important;

@@ -67,54 +67,60 @@ const launchTimeDisplay = computed(() => {
 
 <style scoped>
 .pass-view {
-  padding-bottom: 18px;
+  padding-bottom: 24px;
 }
 
 .pass-card {
-  background: rgba(16, 25, 52, 0.9);
-  border: 1px solid rgba(231, 231, 231, 0.12);
+  background: linear-gradient(135deg, rgba(10, 15, 27, 0.98), rgba(26, 42, 74, 0.95));
+  border: 1px solid rgba(241, 201, 138, 0.15);
   color: #e7e7e7;
-  padding: 20px 16px;
+  padding: 36px 28px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
 .pass-kicker {
-  margin: 0;
-  font-size: 0.78rem;
-  letter-spacing: 0.1em;
+  margin: 0 0 4px;
+  font-size: 0.66rem;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: rgba(231, 231, 231, 0.58);
+  color: rgba(231, 231, 231, 0.54);
+  font-weight: 600;
 }
 
 .pass-card h2 {
-  margin: 8px 0 18px;
-  font-size: 1.42rem;
+  margin: 8px 0 22px;
+  font-size: 1.48rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 .identity-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(231, 231, 231, 0.1);
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(231, 231, 231, 0.08);
 }
 
 .label {
-  margin: 0;
-  font-size: 0.76rem;
-  letter-spacing: 0.09em;
+  margin: 0 0 2px;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(231, 231, 231, 0.6);
+  color: rgba(231, 231, 231, 0.58);
+  font-weight: 600;
 }
 
 .value {
-  margin: 4px 0 0;
+  margin: 0;
   color: rgba(231, 231, 231, 0.94);
+  font-weight: 600;
 }
 
 .qr-block {
-  margin: 16px auto;
-  width: 170px;
-  height: 170px;
+  margin: 20px auto;
+  width: 160px;
+  height: 160px;
   border-radius: 8px;
   border: 8px solid #e7e7e7;
   background-image:
@@ -123,9 +129,10 @@ const launchTimeDisplay = computed(() => {
   background-size: 24px 24px;
   background-position: 0 0, 12px 12px;
   background-color: #f4f4f4;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 .docs-row {
-  margin-top: 8px;
+  margin-top: 12px;
 }
 </style>

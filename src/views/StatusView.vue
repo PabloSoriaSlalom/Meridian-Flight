@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useFlightState } from '@/composables/useFlightState'
+import FeatherIcon from '@/components/FeatherIcon.vue'
 
 const { flightStatus, liveCountdown, journeyStatusText, boardingStatus, journeyProgressPercent } = useFlightState()
 
@@ -19,121 +20,129 @@ const topStatusItems = computed(() => [
   { 
     label: 'Flight Number', 
     value: flightStatus.flightNumber,
-    icon: 'mdi-airplane'
+    icon: 'navigation'
   },
   { 
     label: 'Vehicle Name', 
     value: flightStatus.vehicleName,
-    icon: 'mdi-rocket-outline'
+    icon: 'send'
   },
   { 
     label: 'Destination', 
     value: flightStatus.destination,
-    icon: 'mdi-earth'
+    icon: 'globe'
   },
   { 
     label: 'Launch Time', 
     value: launchTimeDisplay.value,
-    icon: 'mdi-clock-outline'
+    icon: 'clock'
   },
   { 
     label: 'Live Countdown', 
     value: liveCountdown.value,
-    icon: 'mdi-timer-outline'
+    icon: 'watch'
   },
   { 
     label: 'Launch Window', 
     value: flightStatus.launchWindow,
-    icon: 'mdi-window-closed'
+    icon: 'x'
   },
 ])
 </script>
 
 <template>
   <section class="status-view">
-    <v-card class="status-card" rounded="xl" flat>
-      <h2>Operational Status</h2>
-      <p class="summary">Routine departure profile. Launch remains on schedule.</p>
+    <h2>Operational Status</h2>
+    <p class="summary">Routine departure profile. Launch remains on schedule.</p>
 
-      <div class="status-grid">
-        <div v-for="item in topStatusItems" :key="item.label" class="status-item-card">
-          <div class="card-icon">
-            <v-icon :icon="item.icon" size="32" color="#F9C784" />
-          </div>
-          <p class="item-label">{{ item.label }}</p>
-          <p class="item-value">{{ item.value }}</p>
+    <div class="status-grid">
+      <div v-for="item in topStatusItems" :key="item.label" class="status-item-card">
+        <div class="card-icon">
+          <FeatherIcon :name="item.icon" size="32" color="#f1c98a" />
         </div>
+        <p class="item-label">{{ item.label }}</p>
+        <p class="item-value">{{ item.value }}</p>
       </div>
-    </v-card>
+    </div>
   </section>
 </template>
 
 <style scoped>
 .status-view {
-  padding-bottom: 18px;
+  padding: 28px 20px 24px;
 }
 
-.status-card {
-  background: rgba(16, 25, 52, 0.9);
-  border: 1px solid rgba(231, 231, 231, 0.12);
-  color: #e7e7e7;
-  padding: 20px 16px;
-}
-
-.status-card h2 {
-  margin: 0;
-  font-size: 1.4rem;
+h2 {
+  margin: 0 0 6px;
+  font-size: 1.48rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 .summary {
-  margin: 8px 0 18px;
-  color: rgba(231, 231, 231, 0.76);
+  margin: 8px 0 20px;
+  color: rgba(231, 231, 231, 0.72);
+  font-size: 0.98rem;
+  line-height: 1.5;
 }
 
 .status-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  gap: 14px;
 }
 
 .status-item-card {
-  background: rgba(231, 231, 231, 0.08);
-  border: 1px solid rgba(231, 231, 231, 0.14);
-  border-radius: 8px;
-  padding: 14px 12px;
+  background: rgba(26, 42, 74, 0.4);
+  border: 1px solid rgba(241, 201, 138, 0.12);
+  border-radius: 16px;
+  padding: 20px 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  transition: border-color 0.2s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .status-item-card:hover {
-  border-color: rgba(249, 199, 132, 0.3);
+  border-color: rgba(241, 201, 138, 0.3);
+  background: rgba(26, 42, 74, 0.6);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
 .card-icon {
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 32px;
+  width: auto;
+  height: auto;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.status-item-card:hover .card-icon {
+  border-color: transparent;
+  background: transparent;
 }
 
 .item-label {
-  margin: 0 0 6px;
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
+  margin: 0 0 8px;
+  font-size: 0.66rem;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: rgba(231, 231, 231, 0.54);
-  font-weight: 500;
+  color: rgba(231, 231, 231, 0.52);
+  font-weight: 600;
 }
 
 .item-value {
   margin: 0;
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: 0.96rem;
+  font-weight: 700;
   color: #e7e7e7;
-  line-height: 1.3;
+  line-height: 1.4;
 }
 </style>

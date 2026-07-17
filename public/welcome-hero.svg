@@ -14,11 +14,11 @@
   </g>
 
   <g opacity="0.16">
-    <circle cx="140" cy="260" r="2" fill="#F9C784"/>
+    <circle cx="140" cy="260" r="2" fill="#f1c98a"/>
     <circle cx="340" cy="410" r="2" fill="#E7E7E7"/>
-    <circle cx="980" cy="350" r="2" fill="#F9C784"/>
+    <circle cx="980" cy="350" r="2" fill="#f1c98a"/>
     <circle cx="860" cy="220" r="1.5" fill="#E7E7E7"/>
     <circle cx="1020" cy="740" r="2" fill="#E7E7E7"/>
-    <circle cx="240" cy="860" r="1.5" fill="#F9C784"/>
+    <circle cx="240" cy="860" r="1.5" fill="#f1c98a"/>
   </g>
 </svg>

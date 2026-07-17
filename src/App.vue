@@ -2,7 +2,9 @@
 import { computed, ref } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 import { useFlightState } from '@/composables/useFlightState'
+import FeatherIcon from '@/components/FeatherIcon.vue'
 import meridianLogo from '@/images/MS_logo.png'
+import heroImage from '@/images/hero2.jpg'
 
 const route = useRoute()
 const router = useRouter()
@@ -43,10 +45,6 @@ function continueWithName() {
           <section :class="['phone-shell', { 'phone-shell--welcome': isWelcomeJourneyView }]">
             <header v-if="!isWelcomeJourneyView" class="shell-header">
               <img :src="meridianLogo" alt="Meridian Space" class="shell-logo" />
-              <div class="flight-meta" aria-label="Active flight details">
-                <p class="flight-number">Your flight: M102</p>
-                <p class="flight-status">On time</p>
-              </div>
             </header>
 
             <section
@@ -81,7 +79,7 @@ function continueWithName() {
               </div>
             </section>
 
-            <section v-else :class="['shell-content', { 'shell-content--welcome': isWelcomeJourneyView }]">
+            <section v-else :class="['shell-content', { 'shell-content--welcome': isWelcomeJourneyView }]" :style="isWelcomeJourneyView ? { backgroundImage: `url(${heroImage})` } : {}">
               <RouterView />
             </section>
 
@@ -94,15 +92,15 @@ function continueWithName() {
               density="comfortable"
             >
               <v-btn value="journey">
-                <v-icon>mdi-map-marker-path</v-icon>
+                <FeatherIcon name="map-pin" size="20" />
                 <span>Journey</span>
               </v-btn>
               <v-btn value="status">
-                <v-icon>mdi-wifi</v-icon>
+                <FeatherIcon name="wifi" size="20" />
                 <span>Status</span>
               </v-btn>
               <v-btn value="pass">
-                <v-icon>mdi-wallet-membership</v-icon>
+                <FeatherIcon name="tag" size="20" />
                 <span>Pass</span>
               </v-btn>
             </v-bottom-navigation>
@@ -113,11 +111,11 @@ function continueWithName() {
               variant="text"
               size="small"
               rounded="xl"
-              prepend-icon="mdi-restore"
               class="reset-btn"
               @click="resetJourney"
             >
-              Reset Experience
+              <FeatherIcon name="rotate-ccw" size="16" />
+              <span>Reset Experience</span>
             </v-btn>
           </div>
         </div>
@@ -150,7 +148,7 @@ function continueWithName() {
 .glow-a {
   width: 220px;
   height: 220px;
-  background: #f9c784;
+  background: #f1c98a;
   top: -80px;
   right: -70px;
 }
@@ -191,14 +189,14 @@ function continueWithName() {
 }
 
 .phone-shell--welcome {
-  background: #08112a;
+  background: transparent;
 }
 
 .shell-header {
   padding: 14px 20px 10px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 12px;
   border-bottom: 1px solid rgba(231, 231, 231, 0.14);
   background: linear-gradient(180deg, rgba(12, 20, 45, 0.82) 0%, rgba(10, 16, 36, 0.72) 100%);
@@ -245,14 +243,35 @@ function continueWithName() {
 }
 
 .shell-content--welcome {
+  flex: 1;
   padding: 0;
+  margin: 0;
   overflow: hidden;
   display: flex;
-  min-height: 0;
-  height: 100%;
-  align-items: stretch;
+  align-items: center;
   justify-content: center;
-  background: #0a1024;
+  background-size: auto auto;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  position: relative;
+}
+
+.shell-content--welcome::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.shell-content--welcome > * {
+  position: relative;
+  z-index: 1;
 }
 
 .shell-content--personalize {
@@ -297,11 +316,20 @@ function continueWithName() {
 
 .personalize-btn {
   width: 100%;
-  min-height: 48px;
-  background: linear-gradient(90deg, #fc7a1e, #f24c00);
-  color: #091022;
-  font-weight: 700;
-  letter-spacing: 0.03em;
+  min-height: 52px;
+  background: linear-gradient(135deg, #4a5693 0%, #3a4682 100%);
+  color: #ffffff;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(74, 86, 147, 0.3);
+}
+
+.personalize-btn:hover:not(:disabled) {
+  box-shadow: 0 12px 32px rgba(74, 86, 147, 0.5);
+  transform: translateY(-2px);
 }
 
 .shell-content--welcome :deep(.journey-view--welcome) {
