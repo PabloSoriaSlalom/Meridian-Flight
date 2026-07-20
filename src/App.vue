@@ -5,13 +5,15 @@ import { useFlightState } from '@/composables/useFlightState'
 import FeatherIcon from '@/components/FeatherIcon.vue'
 import meridianLogo from '@/images/MS_logo.png'
 import heroImage from '@/images/hero2.jpg'
+import lobbyBgImage from '@/images/lobby_bg.jpg'
 
 const route = useRoute()
 const router = useRouter()
-const { activeStage, passengerFirstName, setPassengerFirstName, resetJourney } = useFlightState()
+const { activeStage, passengerFirstName, setPassengerFirstName, resetJourney, journeyState } = useFlightState()
 const nameInput = ref('')
 
 const isWelcomeJourneyView = computed(() => route.name === 'journey' && activeStage.value.kind === 'welcome')
+const isLobbyCircleView = computed(() => route.name === 'journey' && journeyState.value === 'lobbyCircle')
 const needsPersonalization = computed(() => passengerFirstName.value.trim().length === 0)
 const canContinue = computed(() => nameInput.value.trim().length > 0)
 
@@ -67,17 +69,18 @@ function continueWithName() {
               </div>
             </section>
 
-            <section v-else :class="['shell-content', { 'shell-content--welcome': isWelcomeJourneyView }]" :style="isWelcomeJourneyView ? { backgroundImage: `url(${heroImage})` } : {}">
+            <section v-else :class="['shell-content', { 'shell-content--welcome': isWelcomeJourneyView, 'shell-content--lobby': isLobbyCircleView }]" :style="isWelcomeJourneyView ? { backgroundImage: `url(${heroImage})` } : isLobbyCircleView ? { backgroundImage: `url(${lobbyBgImage})` } : {}">
               <RouterView />
             </section>
           </section>
 
-          <div v-if="!isWelcomeJourneyView" class="review-controls">
+          <div class="review-controls">
             <v-btn
               variant="text"
               size="small"
               rounded="xl"
               class="reset-btn"
+              :disabled="isWelcomeJourneyView"
               @click="resetJourney"
             >
               <FeatherIcon name="rotate-ccw" size="16" />
@@ -114,7 +117,7 @@ function continueWithName() {
 .glow-a {
   width: 220px;
   height: 220px;
-  background: #f1c98a;
+  background: #f7af43;
   top: -80px;
   right: -70px;
 }
@@ -204,19 +207,21 @@ function continueWithName() {
 
 .shell-content {
   flex: 1;
+  max-height: 100%;
   padding: 14px 16px 0;
   overflow-y: auto;
 }
 
 .shell-content--welcome {
   flex: 1;
+  max-height: 100%;
   padding: 0;
   margin: 0;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-size: auto auto;
+  background-size: 20%;
   background-position: center;
   background-attachment: fixed;
   background-repeat: no-repeat;
@@ -230,12 +235,40 @@ function continueWithName() {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.15);
+  background: rgba(9, 15, 45, 0.87);
   pointer-events: none;
   z-index: 0;
 }
 
 .shell-content--welcome > * {
+  position: relative;
+  z-index: 1;
+}
+
+.shell-content--lobby {
+  flex: 1;
+  max-height: 100%;
+  padding: 0;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+}
+
+.shell-content--lobby::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(9, 15, 45, 0.84);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.shell-content--lobby > * {
   position: relative;
   z-index: 1;
 }

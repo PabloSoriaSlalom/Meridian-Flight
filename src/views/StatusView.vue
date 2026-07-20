@@ -58,7 +58,7 @@ const topStatusItems = computed(() => [
     <div class="status-grid">
       <div v-for="item in topStatusItems" :key="item.label" class="status-item-card">
         <div class="card-icon">
-          <FeatherIcon :name="item.icon" size="32" color="#f1c98a" />
+          <FeatherIcon :name="item.icon" size="32" color="#f7af43" />
         </div>
         <p class="item-label">{{ item.label }}</p>
         <p class="item-value">{{ item.value }}</p>
