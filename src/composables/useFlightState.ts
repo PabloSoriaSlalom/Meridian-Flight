@@ -21,7 +21,9 @@ export type JourneyStage = {
 
 export type JourneyState =
   | 'welcome'
+  | 'synchronizingLobby'
   | 'lobbyCircle'
+  | 'checkInReady'
   | 'synchronizingCheckIn'
   | 'checkInCircle'
   | 'checkInProcessing'
@@ -302,7 +304,7 @@ const majorStageIndex = computed(() => {
   if (journeyState.value === 'welcome') {
     return -1
   }
-  if (journeyState.value === 'lobbyCircle') {
+  if (journeyState.value === 'synchronizingLobby' || journeyState.value === 'lobbyCircle' || journeyState.value === 'checkInReady') {
     return 0
   }
   if (journeyState.value === 'synchronizingCheckIn' || journeyState.value === 'checkInCircle' || journeyState.value === 'checkInProcessing') {
@@ -467,11 +469,23 @@ async function advanceJourney(): Promise<void> {
   }
 
   if (journeyState.value === 'welcome') {
-    journeyState.value = 'lobbyCircle'
+    journeyState.value = 'synchronizingLobby'
+    
+    // Auto-advance after 3 seconds
+    setTimeout(() => {
+      if (journeyState.value === 'synchronizingLobby') {
+        journeyState.value = 'lobbyCircle'
+      }
+    }, 3000)
     return
   }
 
   if (journeyState.value === 'lobbyCircle') {
+    journeyState.value = 'checkInReady'
+    return
+  }
+
+  if (journeyState.value === 'checkInReady') {
     journeyState.value = 'synchronizingCheckIn'
     checkInComplete.value = false
     securityRoute.value = null

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useFlightState } from '@/composables/useFlightState'
 import FeatherIcon from '@/components/FeatherIcon.vue'
 import welcomeLogo from '@/images/MS_logoV.png'
@@ -25,8 +25,14 @@ const {
   activeStage,
 } = useFlightState()
 
+const showBoardingCompletion = ref(false)
+
+const isBoardingPassShowing = computed(() => isBoardingCircle.value && boardingPassGenerated.value && !showBoardingCompletion.value)
+const isBoardingCompletionShowing = computed(() => isBoardingCircle.value && boardingPassGenerated.value && showBoardingCompletion.value)
 const isWelcome = computed(() => journeyState.value === 'welcome')
 const isLobbyCircle = computed(() => journeyState.value === 'lobbyCircle')
+const isSynchronizingLobby = computed(() => journeyState.value === 'synchronizingLobby')
+const isCheckInReady = computed(() => journeyState.value === 'checkInReady')
 const isSynchronizingCheckIn = computed(() => journeyState.value === 'synchronizingCheckIn')
 const isCheckInCircle = computed(() => journeyState.value === 'checkInCircle')
 const isCheckInReadyScreen = computed(() => isCheckInCircle.value && !checkInComplete.value)
@@ -44,7 +50,6 @@ const isNowBoarding = computed(() => journeyState.value === 'nowBoarding')
 const isBoardingCircle = computed(() => journeyState.value === 'boardingCircle')
 const isBoardingCircleReady = computed(() => isBoardingCircle.value && !boardingPassGenerated.value)
 const isBoardingProcessing = computed(() => journeyState.value === 'boardingProcessing')
-const isBoardingPassShowing = computed(() => isBoardingCircle.value && boardingPassGenerated.value)
 const isOnboard = computed(() => journeyState.value === 'onboard')
 
 const completedProcessingIndex = computed(() => activeProcessingIndex.value - 1)
@@ -144,6 +149,10 @@ const dynamicProcessingTitle = computed(() => {
 
 const primaryActionLabel = computed(() => {
   if (isLobbyCircle.value) {
+    return 'Continue'
+  }
+
+  if (isCheckInReady.value) {
     return "I'm Inside the Circle"
   }
 
@@ -187,13 +196,20 @@ const primaryActionLabel = computed(() => {
 })
 
 const showBottomAction = computed(
-  () => !isWelcome.value && !isProcessing.value && !isBoardingProcessing.value && !!primaryActionLabel.value,
+  () => !isWelcome.value && !isLobbyCircle.value && !isCheckInReady.value && !isProcessing.value && !isBoardingProcessing.value && !!primaryActionLabel.value,
 )
+
+// Reset boarding completion flag when leaving boarding circle
+watch(() => isBoardingCircle.value, (newVal) => {
+  if (!newVal) {
+    showBoardingCompletion.value = false
+  }
+})
 
 </script>
 
 <template>
-  <section :class="['journey-view', { 'journey-view--welcome': isWelcome, 'journey-view--lobby': isLobbyCircle }]">
+  <section :class="['journey-view', { 'journey-view--welcome': isWelcome, 'journey-view--lobby': isLobbyCircle || isCheckInReady }]">
     <div v-if="!isWelcome" class="route-wrap" aria-label="Journey route progress">
       <ol class="route-line">
         <li
@@ -217,24 +233,64 @@ const showBottomAction = computed(
       </ol>
     </div>
 
+    <div v-if="isSynchronizingLobby" class="lobby-outside lobby-outside--sync">
+      <h2 class="lobby-location">Synchronizing with <span class="route-emphasis">Passenger Lobby Circle</span>...</h2>
+      <div class="sync-icon-wrap">
+        <div class="sync-spinner-dual">
+          <div class="sync-circle sync-circle-inner"></div>
+          <div class="sync-circle sync-circle-outer"></div>
+        </div>
+      </div>
+      <p class="lobby-guidance sync-text">
+        Securing connection
+      </p>
+    </div>
+
     <div v-if="isLobbyCircle" class="lobby-outside lobby-outside--lobby">
-      <h2 class="lobby-location">Passenger Lobby Circle</h2>
       <div class="icon-wrap icon-wrap--outside">
         <FeatherIcon :name="activeStage.icon" size="56" color="#f7af43" />
       </div>
+      <h2 class="lobby-location">Passenger Lobby Circle</h2>
       <p class="lobby-guidance">
         Meridian guides passengers through connected <span class="route-emphasis">Circles</span> and dedicated <span class="route-emphasis">Routes</span>.
       </p>
       <p class="lobby-guidance">
-        Each <span class="route-emphasis">Circle</span> securely synchronizes your device with the next stage of your journey.
+        Each <span class="route-emphasis">Circle</span> securely synchronizes your device with the next stage of boarding.
       </p>
+      <div class="action-btn-wrap action-btn-wrap--lobby">
+        <v-btn
+          block
+          size="x-large"
+          rounded="xl"
+          class="action-btn action-btn--continue"
+          @click="advanceJourney"
+        >
+          Continue
+        </v-btn>
+      </div>
+    </div>
+
+    <div v-if="isCheckInReady" class="lobby-outside">
+      <p class="checkin-ready-subtitle">Continue to the <span class="route-emphasis">Check-in Circle</span></p>
       <div class="guidance-box">
+        <h3 class="guidance-box-title"><span class="route-emphasis">Check-in Circle</span></h3>
         <p class="lobby-guidance">
           Walk over to the next <span class="route-emphasis">Circle</span>,<br />the <span class="route-emphasis">Check-in Circle</span>.
         </p>
         <p class="lobby-guidance">
           Follow the <span class="route-emphasis">Blue Route</span> to the <span class="route-emphasis">Circle</span>. Once inside, tap the button below to begin check-in.
         </p>
+      </div>
+      <div class="action-btn-wrap action-btn-wrap--check-in">
+        <v-btn
+          block
+          size="x-large"
+          rounded="xl"
+          class="action-btn action-btn--welcome"
+          @click="advanceJourney"
+        >
+          I'm Inside the Circle
+        </v-btn>
       </div>
     </div>
 
@@ -252,10 +308,10 @@ const showBottomAction = computed(
     </div>
 
     <div v-if="isCheckInReadyScreen" class="lobby-outside">
-      <h2 class="lobby-location">Check-in Circle</h2>
       <div class="icon-wrap icon-wrap--outside">
         <FeatherIcon :name="activeStage.icon" size="56" color="#f7af43" />
       </div>
+      <h2 class="lobby-location">Check-in Circle</h2>
       <p class="lobby-guidance">
         You're inside the <span class="route-emphasis">Check-in Circle</span>.
       </p>
@@ -286,10 +342,10 @@ const showBottomAction = computed(
     </div>
 
     <div v-if="isSecurityReadyScreen" class="lobby-outside">
-      <h2 class="lobby-location">Security Circle</h2>
       <div class="icon-wrap icon-wrap--outside">
         <FeatherIcon :name="activeStage.icon" size="56" color="#f7af43" />
       </div>
+      <h2 class="lobby-location">Security Circle</h2>
       <p class="lobby-guidance">
         You're inside the <span class="route-emphasis">Security Circle</span>.
       </p>
@@ -320,10 +376,10 @@ const showBottomAction = computed(
     </div>
 
     <div v-if="isLoungeCircle" class="lobby-outside">
-      <h2 class="lobby-location">Departure Lounge Circle</h2>
       <div class="icon-wrap icon-wrap--outside">
         <FeatherIcon :name="activeStage.icon" size="56" color="#f7af43" />
       </div>
+      <h2 class="lobby-location">Departure Lounge Circle</h2>
       <p class="lobby-guidance">
         You're inside the <span class="route-emphasis">Departure Lounge Circle</span>.
       </p>
@@ -337,9 +393,6 @@ const showBottomAction = computed(
 
     <div v-if="isNowBoarding" class="lobby-outside">
       <h2 class="lobby-location lobby-location--boarding">Boarding has begun.</h2>
-      <div class="icon-wrap icon-wrap--outside">
-        <FeatherIcon name="play-circle" size="56" color="#f7af43" />
-      </div>
       <p class="lobby-guidance">
         Continue to the <span class="route-emphasis">Boarding Circle</span>.
       </p>
@@ -359,10 +412,10 @@ const showBottomAction = computed(
     </div>
 
     <div v-if="isBoardingCircleReady" class="lobby-outside">
-      <h2 class="lobby-location">Boarding Circle</h2>
       <div class="icon-wrap icon-wrap--outside">
       <FeatherIcon name="log-in" size="56" color="#f7af43" />
       </div>
+      <h2 class="lobby-location">Boarding Circle</h2>
       <p class="lobby-guidance">
         You're inside the <span class="route-emphasis">Boarding Circle</span>.
       </p>
@@ -405,13 +458,44 @@ const showBottomAction = computed(
       <p class="lobby-guidance">
         Present this pass for boarding.
       </p>
+      <div class="action-btn-wrap action-btn-wrap--boarding">
+        <v-btn
+          block
+          size="x-large"
+          rounded="xl"
+          class="action-btn action-btn--welcome"
+          @click="showBoardingCompletion = true"
+        >
+          Continue
+        </v-btn>
+      </div>
+    </div>
+
+    <div v-if="isBoardingCompletionShowing" class="lobby-outside">
+      <p class="lobby-guidance">
+        The boarding process is complete.
+      </p>
+      <p class="lobby-guidance">
+        Thank you for choosing Meridian Space.
+      </p>
+      <div class="action-btn-wrap action-btn-wrap--boarding">
+        <v-btn
+          block
+          size="x-large"
+          rounded="xl"
+          class="action-btn action-btn--welcome"
+          @click="advanceJourney"
+        >
+          Continue
+        </v-btn>
+      </div>
     </div>
 
     <div v-if="isOnboard" class="lobby-outside">
-      <h2 class="lobby-location">Welcome aboard.</h2>
       <div class="icon-wrap icon-wrap--outside">
         <FeatherIcon :name="activeStage.icon" size="54" color="#f7af43" />
       </div>
+      <h2 class="lobby-location">Welcome aboard.</h2>
       <p class="mission-flight">Flight M102</p>
       
       <div class="mission-card">
@@ -431,7 +515,7 @@ const showBottomAction = computed(
     </div>
 
     <section
-      v-if="!isCheckInReadyScreen && !isSecurityReadyScreen && !isLoungeReadyScreen && !isLoungeCountdown && !isBoardingCircleReady && !isBoardingProcessing && !isBoardingPassShowing && !isLobbyCircle && !isSynchronizingCheckIn && !isSynchronizingSecurity && !isSynchronizingLounge && !isSynchronizingBoarding"
+      v-if="!isCheckInReadyScreen && !isSecurityReadyScreen && !isLoungeReadyScreen && !isLoungeCountdown && !isBoardingCircleReady && !isBoardingProcessing && !isBoardingPassShowing && !isLobbyCircle && !isCheckInReady && !isSynchronizingLobby && !isSynchronizingCheckIn && !isSynchronizingSecurity && !isSynchronizingLounge && !isSynchronizingBoarding"
       :class="[
         'stage-panel',
         {
@@ -449,14 +533,11 @@ const showBottomAction = computed(
           <div class="welcome-content">
             <img :src="welcomeLogo" alt="Meridian Flight" class="welcome-logo" />
             <p class="where-lead">{{ welcomeGreeting }}</p>
-            <h2 class="where-name">Welcome to Meridian Spaceport</h2>
+            <h2 class="where-name">Welcome to <span style="white-space: nowrap;">Meridian Spaceport</span></h2>
             <p class="welcome-flight-info">Flight M102</p>
-            <p class="instruction">
-              Your journey begins at the <span class="welcome-emphasis">Passenger Lobby Circle</span>, a designated area within the spaceport.
-            </p>
             <div class="welcome-instruction-card">
               <p class="instruction instruction-main">
-                Walk into the Circle. Once inside, tap <span class="action-emphasis">I'm Inside the Circle</span> to begin your journey.
+                Walk into the terminal and step into the <span class="welcome-emphasis">Passenger Lobby Circle</span>. Then tap the button below to begin the boarding process.
               </p>
             </div>
 
@@ -588,12 +669,15 @@ const showBottomAction = computed(
   gap: 0;
   padding: 0;
   margin: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .route-wrap {
   overflow-x: auto;
   padding-top: 28px;
-  padding-bottom: 28px;
+  padding-bottom: 48px;
+  flex-shrink: 0;
 }
 
 .route-line {
@@ -667,10 +751,11 @@ const showBottomAction = computed(
 }
 
 .stage-panel {
-  background: linear-gradient(135deg, rgba(10, 15, 27, 0.98), rgba(26, 42, 74, 0.95));
-  border: 1px solid rgba(241, 201, 138, 0.15);
+  background: rgba(9, 15, 45, 0.30);
+  border: 2px solid #f7af43;
   border-radius: 28px;
   padding: 36px 28px;
+  margin: 0 0 24px;
   color: #e7e7e7;
   transition: all 0.3s ease;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
@@ -750,6 +835,7 @@ const showBottomAction = computed(
   justify-content: center;
   text-align: center;
   margin: 2px 0 2px;
+  width: 100%;
 }
 
 .lobby-outside--checkin-complete {
@@ -758,10 +844,10 @@ const showBottomAction = computed(
 }
 
 .lobby-outside--lobby {
-  min-height: 220px;
+  flex: 1;
+  width: 100%;
   justify-content: center;
   padding: 0 16px 24px;
-  flex: 1;
 }
 
 .lobby-location {
@@ -771,6 +857,21 @@ const showBottomAction = computed(
   color: #ffffff;
   font-weight: 500;
   letter-spacing: 0.02em;
+}
+
+.checkin-ready-title {
+  margin: 0 0 4px;
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.checkin-ready-subtitle {
+  margin: 0 0 20px;
+  font-size: 1rem;
+  color: rgba(231, 231, 231, 0.75);
+  text-align: center;
 }
 
 .lobby-location--boarding {
@@ -820,16 +921,16 @@ const showBottomAction = computed(
   max-width: none;
 }
 
-.guidance-box .lobby-guidance + .lobby-guidance {
-  margin-top: 12px;
+.guidance-box-title {
+  margin: 0 0 16px;
+  font-size: 2.2rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #ffffff;
 }
 
-.guidance-box-title {
-  margin: 0 0 16px 0;
-  font-size: 1.3rem;
-  color: #ffffff;
-  font-weight: 500;
-  letter-spacing: 0.02em;
+.guidance-box .lobby-guidance + .lobby-guidance {
+  margin-top: 12px;
 }
 
 .countdown-display {
@@ -1006,14 +1107,14 @@ const showBottomAction = computed(
 
 .welcome-emphasis {
   font-weight: 600;
-  color: #ffffff;
+  color: #f7af43;
 }
 
 .welcome-instruction-card {
   max-width: 320px;
   padding: 20px 16px;
   margin: 20px 0;
-  background: rgba(9, 15, 45, 0);
+  background: rgba(9, 15, 45, 0.30);
   border: 2px solid #f7af43;
   border-radius: 16px;
   text-align: center;
@@ -1139,6 +1240,38 @@ const showBottomAction = computed(
 .action-btn--welcome:focus,
 .action-btn--welcome:active {
   transform: none !important;
+}
+
+.action-btn-wrap {
+  margin-top: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.action-btn-wrap--check-in {
+  padding-top: 24px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.action-btn-wrap--lobby {
+  padding-top: 24px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.action-btn-wrap--boarding {
+  padding-top: 24px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.action-btn--check-in-ready {
+  margin-top: 32px;
 }
 
 .boarding-pass-qr {
