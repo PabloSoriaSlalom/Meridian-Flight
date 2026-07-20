@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 import { useFlightState } from '@/composables/useFlightState'
 import FeatherIcon from '@/components/FeatherIcon.vue'
+import ResetButton from '@/components/ResetButton.vue'
 import meridianLogo from '@/images/MS_logo.png'
 import heroImage from '@/images/hero2.jpg'
 import lobbyBgImage from '@/images/lobby_bg.jpg'
@@ -36,7 +37,7 @@ const isSecurityBgPaddingView = computed(() => isSecurityProcessingView.value ||
 const isLoungeCircleView = computed(() => route.name === 'journey' && journeyState.value === 'loungeCircle')
 const isNowBoardingView = computed(() => route.name === 'journey' && journeyState.value === 'nowBoarding')
 const isSynchronizingLoungeView = computed(() => route.name === 'journey' && journeyState.value === 'synchronizingLounge')
-const isLoungeBgPaddingView = computed(() => isLoungeCircleView.value || isNowBoardingView.value || isSynchronizingLoungeView.value)
+const isLoungeBgPaddingView = computed(() => isLoungeCircleView.value || isSynchronizingLoungeView.value)
 const isBoardingCircleView = computed(() => route.name === 'journey' && journeyState.value === 'boardingCircle')
 const isBoardingProcessingView = computed(() => route.name === 'journey' && journeyState.value === 'boardingProcessing')
 const isSynchronizingBoardingView = computed(() => route.name === 'journey' && journeyState.value === 'synchronizingBoarding')
@@ -63,57 +64,46 @@ function continueWithName() {
       <div v-if="!isWelcomeJourneyView" class="glow glow-b"></div>
 
       <main class="review-frame">
-        <div class="review-stack">
+        <div v-if="needsPersonalization" class="review-stack review-stack--intro">
+          <section class="intro-section">
+            <p class="intro-description">
+              This is the boarding process for a flight with <span style="font-weight: bold; color: #f7af43;">Meridian Space</span>, a fictional company from a near future where space travel is routine. Meridian guides passengers through the terminal, using their device to sync at each station and move safely toward their flight. <span style="font-weight: bold;">Enter your name to personalize the experience.</span>
+            </p>
+            <div class="personalize-card">
+              <v-text-field
+                v-model="nameInput"
+                label="Your name"
+                variant="outlined"
+                density="comfortable"
+                color="primary"
+                hide-details
+                class="personalize-input"
+                @keydown.enter="continueWithName"
+              />
+              <v-btn
+                block
+                size="large"
+                rounded="lg"
+                class="personalize-btn"
+                :disabled="!canContinue"
+                @click="continueWithName"
+              >
+                Continue
+              </v-btn>
+            </div>
+          </section>
+        </div>
+
+        <div v-else class="review-stack">
           <section :class="['phone-shell', { 'phone-shell--welcome': isWelcomeJourneyView }]">
 
-            <section
-              v-if="needsPersonalization"
-              class="shell-content shell-content--personalize"
-              aria-label="Personalize experience"
-            >
-              <div class="personalize-card">
-                <p class="personalize-copy">
-                  Enter your name and continue.
-                </p>
-                <v-text-field
-                  v-model="nameInput"
-                  label="First name"
-                  variant="outlined"
-                  density="comfortable"
-                  color="primary"
-                  hide-details
-                  class="personalize-input"
-                  @keydown.enter="continueWithName"
-                />
-                <v-btn
-                  block
-                  size="large"
-                  rounded="lg"
-                  class="personalize-btn"
-                  :disabled="!canContinue"
-                  @click="continueWithName"
-                >
-                  Continue
-                </v-btn>
-              </div>
-            </section>
-
-            <section v-else :class="['shell-content', { 'shell-content--welcome': isWelcomeJourneyView, 'shell-content--lobby': isLobbyLikeView, 'shell-content--checkin': isCheckInBgPaddingView, 'shell-content--security': isSecurityBgPaddingView, 'shell-content--lounge': isLoungeBgPaddingView, 'shell-content--boarding': isBoardingBgPaddingView, 'shell-content--onboard': isOnboardView }]" :style="isWelcomeJourneyView ? { backgroundImage: `url(${heroImage})` } : isLobbyBgImageView ? { backgroundImage: `url(${lobbyBgImage})` } : isCheckInBackgroundView ? { backgroundImage: `url(${checkinBgImage})` } : isSecurityBackgroundView ? { backgroundImage: `url(${securityBgImage})` } : isLoungeCircleView || isNowBoardingView ? { backgroundImage: `url(${loungeBgImage})` } : isBoardingBackgroundView ? { backgroundImage: `url(${boardingBgImage})` } : isOnboardView ? { backgroundImage: `url(${onboardBgImage})` } : {}">
+            <section :class="['shell-content', { 'shell-content--welcome': isWelcomeJourneyView, 'shell-content--lobby': isLobbyLikeView, 'shell-content--checkin': isCheckInBgPaddingView, 'shell-content--security': isSecurityBgPaddingView, 'shell-content--lounge': isLoungeBgPaddingView, 'shell-content--boarding': isBoardingBgPaddingView, 'shell-content--onboard': isOnboardView }]" :style="isWelcomeJourneyView ? { backgroundImage: `url(${heroImage})` } : isLobbyBgImageView ? { backgroundImage: `url(${lobbyBgImage})` } : isCheckInBackgroundView ? { backgroundImage: `url(${checkinBgImage})` } : isSecurityBackgroundView ? { backgroundImage: `url(${securityBgImage})` } : isLoungeCircleView ? { backgroundImage: `url(${loungeBgImage})` } : isBoardingBackgroundView ? { backgroundImage: `url(${boardingBgImage})` } : isOnboardView ? { backgroundImage: `url(${onboardBgImage})` } : {}">
               <RouterView />
             </section>
           </section>
 
           <div class="review-controls">
-            <v-btn
-              variant="text"
-              size="small"
-              rounded="xl"
-              class="reset-btn"
-              :disabled="isWelcomeJourneyView"
-              @click="resetJourney"
-            >
-              <span>Reset Experience</span>
-            </v-btn>
+            <ResetButton :disabled="needsPersonalization" :on-click="resetJourney" />
           </div>
         </div>
       </main>
@@ -537,5 +527,59 @@ function continueWithName() {
   .review-controls {
     padding-top: 14px;
   }
+}
+
+.review-stack--intro {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 40px 20px;
+}
+
+.intro-section {
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.intro-title {
+  margin: 0;
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: #f7af43;
+  letter-spacing: 0.02em;
+  text-align: center;
+}
+
+.intro-description {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: rgba(231, 231, 231, 0.85);
+  text-align: left;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+.personalize-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.personalize-input {
+  font-size: 1rem;
+}
+
+.personalize-btn {
+  background: linear-gradient(135deg, #4a5693 0%, #3a4682 100%);
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
 }
 </style>

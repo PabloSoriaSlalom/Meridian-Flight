@@ -471,12 +471,12 @@ async function advanceJourney(): Promise<void> {
   if (journeyState.value === 'welcome') {
     journeyState.value = 'synchronizingLobby'
     
-    // Auto-advance after 3 seconds
+    // Auto-advance after 4 seconds
     setTimeout(() => {
       if (journeyState.value === 'synchronizingLobby') {
         journeyState.value = 'lobbyCircle'
       }
-    }, 3000)
+    }, 4000)
     return
   }
 
@@ -490,12 +490,12 @@ async function advanceJourney(): Promise<void> {
     checkInComplete.value = false
     securityRoute.value = null
     
-    // Auto-advance after 3 seconds
+    // Auto-advance after 4 seconds
     setTimeout(() => {
       if (journeyState.value === 'synchronizingCheckIn') {
         journeyState.value = 'checkInCircle'
       }
-    }, 3000)
+    }, 4000)
     return
   }
 
@@ -509,14 +509,14 @@ async function advanceJourney(): Promise<void> {
     // Moving from check-in to security - show sync screen first
     journeyState.value = 'synchronizingSecurity'
     
-    // Auto-advance after 3 seconds to security circle
+    // Auto-advance after 4 seconds to security circle
     setTimeout(() => {
       if (journeyState.value === 'synchronizingSecurity') {
         journeyState.value = 'securityCircle'
         securityComplete.value = false
         securityRoute.value = 'standard'
       }
-    }, 3000)
+    }, 4000)
     return
   }
 
@@ -530,14 +530,14 @@ async function advanceJourney(): Promise<void> {
     // Moving from security to lounge - show sync screen first
     journeyState.value = 'synchronizingLounge'
     
-    // Auto-advance after 3 seconds to lounge circle
+    // Auto-advance after 4 seconds to lounge circle
     setTimeout(() => {
       if (journeyState.value === 'synchronizingLounge') {
         journeyState.value = 'loungeCircle'
         loungeReady.value = true
         startLoungeCountdown()
       }
-    }, 3000)
+    }, 4000)
     return
   }
 
@@ -548,13 +548,13 @@ async function advanceJourney(): Promise<void> {
   if (journeyState.value === 'nowBoarding') {
     journeyState.value = 'synchronizingBoarding'
     
-    // Auto-advance after 3 seconds to boarding circle
+    // Auto-advance after 4 seconds to boarding circle
     setTimeout(() => {
       if (journeyState.value === 'synchronizingBoarding') {
         journeyState.value = 'boardingCircle'
         boardingCircleReady.value = true
       }
-    }, 3000)
+    }, 4000)
     return
   }
 

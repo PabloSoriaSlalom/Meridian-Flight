@@ -2,6 +2,8 @@
 import { computed, ref, watch } from 'vue'
 import { useFlightState } from '@/composables/useFlightState'
 import FeatherIcon from '@/components/FeatherIcon.vue'
+import ActionButton from '@/components/ActionButton.vue'
+import StageIcon from '@/components/StageIcon.vue'
 import welcomeLogo from '@/images/MS_logoV.png'
 import lobbyBg from '@/images/lobby_bg.jpg'
 
@@ -234,7 +236,7 @@ watch(() => isBoardingCircle.value, (newVal) => {
     </div>
 
     <div v-if="isSynchronizingLobby" class="lobby-outside lobby-outside--sync">
-      <h2 class="lobby-location">Synchronizing with <span class="route-emphasis">Passenger Lobby Circle</span>...</h2>
+      <h2 class="lobby-location">Synchronizing with <span class="route-emphasis">Passenger Lobby Circle</span><span class="animated-ellipsis"><span>.</span><span>.</span><span>.</span></span></h2>
       <div class="sync-icon-wrap">
         <div class="sync-spinner-dual">
           <div class="sync-circle sync-circle-inner"></div>
@@ -247,27 +249,23 @@ watch(() => isBoardingCircle.value, (newVal) => {
     </div>
 
     <div v-if="isLobbyCircle" class="lobby-outside lobby-outside--lobby">
-      <div class="icon-wrap icon-wrap--outside">
-        <FeatherIcon :name="activeStage.icon" size="56" color="#f7af43" />
-      </div>
+      <StageIcon :icon="activeStage.icon" wrapper-class="icon-wrap--outside" />
       <h2 class="lobby-location">Passenger Lobby Circle</h2>
+      <p class="lobby-guidance lobby-guidance--bold lobby-guidance--intro lobby-guidance--bracketed">
+        You're inside the <span class="route-emphasis">Passenger Lobby Circle</span>.
+      </p>
       <p class="lobby-guidance">
         Meridian guides passengers through connected <span class="route-emphasis">Circles</span> and dedicated <span class="route-emphasis">Routes</span>.
       </p>
       <p class="lobby-guidance">
         Each <span class="route-emphasis">Circle</span> securely synchronizes your device with the next stage of boarding.
       </p>
-      <div class="action-btn-wrap action-btn-wrap--lobby">
-        <v-btn
-          block
-          size="x-large"
-          rounded="xl"
-          class="action-btn action-btn--continue"
-          @click="advanceJourney"
-        >
-          Continue
-        </v-btn>
-      </div>
+      <ActionButton
+        label="Continue"
+        variant="continue"
+        wrapper-class="action-btn-wrap--lobby"
+        :on-click="advanceJourney"
+      />
     </div>
 
     <div v-if="isCheckInReady" class="lobby-outside">
@@ -281,21 +279,15 @@ watch(() => isBoardingCircle.value, (newVal) => {
           Follow the <span class="route-emphasis">Blue Route</span> to the <span class="route-emphasis">Circle</span>. Once inside, tap the button below to begin check-in.
         </p>
       </div>
-      <div class="action-btn-wrap action-btn-wrap--check-in">
-        <v-btn
-          block
-          size="x-large"
-          rounded="xl"
-          class="action-btn action-btn--welcome"
-          @click="advanceJourney"
-        >
-          I'm Inside the Circle
-        </v-btn>
-      </div>
+      <ActionButton
+        label="I'm Inside the Circle"
+        wrapper-class="action-btn-wrap--check-in"
+        :on-click="advanceJourney"
+      />
     </div>
 
     <div v-if="isSynchronizingCheckIn" class="lobby-outside lobby-outside--sync">
-      <h2 class="lobby-location">Synchronizing with <span class="route-emphasis">Check-in Circle</span>...</h2>
+      <h2 class="lobby-location">Synchronizing with <span class="route-emphasis">Check-in Circle</span><span class="animated-ellipsis"><span>.</span><span>.</span><span>.</span></span></h2>
       <div class="sync-icon-wrap">
         <div class="sync-spinner-dual">
           <div class="sync-circle sync-circle-inner"></div>
@@ -308,11 +300,9 @@ watch(() => isBoardingCircle.value, (newVal) => {
     </div>
 
     <div v-if="isCheckInReadyScreen" class="lobby-outside">
-      <div class="icon-wrap icon-wrap--outside">
-        <FeatherIcon :name="activeStage.icon" size="56" color="#f7af43" />
-      </div>
+      <StageIcon :icon="activeStage.icon" wrapper-class="icon-wrap--outside" />
       <h2 class="lobby-location">Check-in Circle</h2>
-      <p class="lobby-guidance">
+      <p class="lobby-guidance lobby-guidance--bold lobby-guidance--intro lobby-guidance--bracketed">
         You're inside the <span class="route-emphasis">Check-in Circle</span>.
       </p>
       <p class="lobby-guidance">
@@ -324,12 +314,15 @@ watch(() => isBoardingCircle.value, (newVal) => {
     </div>
 
     <div v-if="isCheckInCircle && checkInComplete" class="lobby-outside lobby-outside--checkin-complete">
+      <div class="completion-icon-wrap">
+        <FeatherIcon name="check" :size="48" color="#ffffff" />
+      </div>
       <p class="checkin-complete-line"><span class="welcome-emphasis">Check-in complete.</span></p>
       <p class="lobby-guidance lobby-guidance--compact">Continue to the <span class="route-emphasis">Security Circle</span>.</p>
     </div>
 
     <div v-if="isSynchronizingSecurity" class="lobby-outside lobby-outside--sync">
-      <h2 class="lobby-location">Synchronizing with <span class="route-emphasis">Security Circle</span>...</h2>
+      <h2 class="lobby-location">Synchronizing with <span class="route-emphasis">Security Circle</span><span class="animated-ellipsis"><span>.</span><span>.</span><span>.</span></span></h2>
       <div class="sync-icon-wrap">
         <div class="sync-spinner-dual">
           <div class="sync-circle sync-circle-inner"></div>
@@ -342,11 +335,9 @@ watch(() => isBoardingCircle.value, (newVal) => {
     </div>
 
     <div v-if="isSecurityReadyScreen" class="lobby-outside">
-      <div class="icon-wrap icon-wrap--outside">
-        <FeatherIcon :name="activeStage.icon" size="56" color="#f7af43" />
-      </div>
+      <StageIcon :icon="activeStage.icon" wrapper-class="icon-wrap--outside" />
       <h2 class="lobby-location">Security Circle</h2>
-      <p class="lobby-guidance">
+      <p class="lobby-guidance lobby-guidance--bold lobby-guidance--intro lobby-guidance--bracketed">
         You're inside the <span class="route-emphasis">Security Circle</span>.
       </p>
       <p class="lobby-guidance">
@@ -358,12 +349,15 @@ watch(() => isBoardingCircle.value, (newVal) => {
     </div>
 
     <div v-if="isSecurityCircle && securityComplete" class="lobby-outside lobby-outside--checkin-complete">
+      <div class="completion-icon-wrap">
+        <FeatherIcon name="check" :size="48" color="#ffffff" />
+      </div>
       <p class="checkin-complete-line"><span class="welcome-emphasis">Security screening complete.</span></p>
       <p class="lobby-guidance lobby-guidance--compact">Continue to the <span class="route-emphasis">Departure Lounge Circle</span>.</p>
     </div>
 
     <div v-if="isSynchronizingLounge" class="lobby-outside lobby-outside--sync">
-      <h2 class="lobby-location">Synchronizing with <span class="route-emphasis">Departure Lounge Circle</span>...</h2>
+      <h2 class="lobby-location">Synchronizing with <span class="route-emphasis">Departure Lounge Circle</span><span class="animated-ellipsis"><span>.</span><span>.</span><span>.</span></span></h2>
       <div class="sync-icon-wrap">
         <div class="sync-spinner-dual">
           <div class="sync-circle sync-circle-inner"></div>
@@ -376,11 +370,9 @@ watch(() => isBoardingCircle.value, (newVal) => {
     </div>
 
     <div v-if="isLoungeCircle" class="lobby-outside">
-      <div class="icon-wrap icon-wrap--outside">
-        <FeatherIcon :name="activeStage.icon" size="56" color="#f7af43" />
-      </div>
+      <StageIcon :icon="activeStage.icon" wrapper-class="icon-wrap--outside" />
       <h2 class="lobby-location">Departure Lounge Circle</h2>
-      <p class="lobby-guidance">
+      <p class="lobby-guidance lobby-guidance--bold lobby-guidance--intro lobby-guidance--bracketed">
         You're inside the <span class="route-emphasis">Departure Lounge Circle</span>.
       </p>
       <p class="lobby-guidance">
@@ -392,6 +384,9 @@ watch(() => isBoardingCircle.value, (newVal) => {
     </div>
 
     <div v-if="isNowBoarding" class="lobby-outside">
+      <div class="completion-icon-wrap">
+        <FeatherIcon name="arrow-right" :size="48" color="#ffffff" />
+      </div>
       <h2 class="lobby-location lobby-location--boarding">Boarding has begun.</h2>
       <p class="lobby-guidance">
         Continue to the <span class="route-emphasis">Boarding Circle</span>.
@@ -399,7 +394,7 @@ watch(() => isBoardingCircle.value, (newVal) => {
     </div>
 
     <div v-if="isSynchronizingBoarding" class="lobby-outside lobby-outside--sync">
-      <h2 class="lobby-location">Synchronizing with <span class="route-emphasis">Boarding Circle</span>...</h2>
+      <h2 class="lobby-location">Synchronizing with <span class="route-emphasis">Boarding Circle</span><span class="animated-ellipsis"><span>.</span><span>.</span><span>.</span></span></h2>
       <div class="sync-icon-wrap">
         <div class="sync-spinner-dual">
           <div class="sync-circle sync-circle-inner"></div>
@@ -412,11 +407,9 @@ watch(() => isBoardingCircle.value, (newVal) => {
     </div>
 
     <div v-if="isBoardingCircleReady" class="lobby-outside">
-      <div class="icon-wrap icon-wrap--outside">
-      <FeatherIcon name="log-in" size="56" color="#f7af43" />
-      </div>
+      <StageIcon icon="log-in" wrapper-class="icon-wrap--outside" />
       <h2 class="lobby-location">Boarding Circle</h2>
-      <p class="lobby-guidance">
+      <p class="lobby-guidance lobby-guidance--bold lobby-guidance--intro lobby-guidance--bracketed">
         You're inside the <span class="route-emphasis">Boarding Circle</span>.
       </p>
       <p class="lobby-guidance">
@@ -458,37 +451,28 @@ watch(() => isBoardingCircle.value, (newVal) => {
       <p class="lobby-guidance">
         Present this pass for boarding.
       </p>
-      <div class="action-btn-wrap action-btn-wrap--boarding">
-        <v-btn
-          block
-          size="x-large"
-          rounded="xl"
-          class="action-btn action-btn--welcome"
-          @click="showBoardingCompletion = true"
-        >
-          Continue
-        </v-btn>
-      </div>
+      <ActionButton
+        label="Continue"
+        wrapper-class="action-btn-wrap--boarding"
+        :on-click="() => (showBoardingCompletion = true)"
+      />
     </div>
 
     <div v-if="isBoardingCompletionShowing" class="lobby-outside">
+      <div class="completion-icon-wrap">
+        <FeatherIcon name="check" :size="48" color="#ffffff" />
+      </div>
       <p class="lobby-guidance boarding-completion-title">
         <span class="boarding-completion-emphasis">The boarding process is complete.</span>
       </p>
       <p class="lobby-guidance">
         Thank you for choosing Meridian Space.
       </p>
-      <div class="action-btn-wrap action-btn-wrap--boarding">
-        <v-btn
-          block
-          size="x-large"
-          rounded="xl"
-          class="action-btn action-btn--welcome"
-          @click="advanceJourney"
-        >
-          Continue
-        </v-btn>
-      </div>
+      <ActionButton
+        label="Continue"
+        wrapper-class="action-btn-wrap--boarding"
+        :on-click="advanceJourney"
+      />
     </div>
 
     <div v-if="isOnboard" class="lobby-outside">
@@ -612,18 +596,12 @@ watch(() => isBoardingCircle.value, (newVal) => {
       </v-expand-transition>
     </section>
 
-    <div :class="['action-btn-wrap', { 'action-btn-wrap--padded': isLobbyCircle }]">
-      <v-btn
-        v-if="showBottomAction"
-        block
-        size="x-large"
-        rounded="xl"
-        class="action-btn"
-        @click="advanceJourney"
-      >
-        {{ primaryActionLabel }}
-      </v-btn>
-    </div>
+      <ActionButton
+        :label="primaryActionLabel"
+        :show="showBottomAction"
+        :wrapper-class="{ 'action-btn-wrap--padded': isLobbyCircle }"
+        :on-click="advanceJourney"
+      />
   </section>
 </template>
 
@@ -787,6 +765,7 @@ watch(() => isBoardingCircle.value, (newVal) => {
   max-height: calc(100% - 32px);
   padding: 0;
   margin: 0;
+  margin-top: -40px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -892,6 +871,29 @@ watch(() => isBoardingCircle.value, (newVal) => {
   margin-top: 2px;
 }
 
+.lobby-guidance--bold {
+  font-weight: 700;
+}
+
+.lobby-guidance--intro {
+  margin-top: 20px;
+}
+
+.lobby-guidance--bracketed::before {
+  content: '[ ';
+  color: #f7af43;
+}
+
+.lobby-guidance--bracketed::after {
+  content: ' ]';
+  color: #f7af43;
+}
+
+.lobby-guidance--bracketed {
+  max-width: none;
+  white-space: normal;
+}
+
 .lobby-guidance--waiting {
   margin: 4px 0 12px;
   font-size: 0.95rem;
@@ -946,7 +948,7 @@ watch(() => isBoardingCircle.value, (newVal) => {
 .welcome-logo {
   width: min(260px, 75%);
   height: auto;
-  margin: 0 0 0;
+  margin: 0 0 24px 0;
   border-radius: 6px;
 }
 
@@ -1371,14 +1373,14 @@ watch(() => isBoardingCircle.value, (newVal) => {
 .sync-circle-inner {
   width: 50px;
   height: 50px;
-  animation: pulse-inner 2s ease-in-out infinite;
+  animation: pulse-inner 1.8s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
   opacity: 0.7;
 }
 
 .sync-circle-outer {
   width: 70px;
   height: 70px;
-  animation: pulse-outer 3s ease-in-out infinite;
+  animation: pulse-outer 2.8s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
   opacity: 0.5;
 }
 
@@ -1399,29 +1401,43 @@ watch(() => isBoardingCircle.value, (newVal) => {
 
 @keyframes pulse-inner {
   0% {
-    opacity: 0.7;
+    opacity: 0.6;
     transform: scale(0.9);
+  }
+  25% {
+    opacity: 0.85;
   }
   50% {
     opacity: 1;
+    transform: scale(1);
+  }
+  75% {
+    opacity: 0.85;
   }
   100% {
-    opacity: 0.7;
-    transform: scale(1);
+    opacity: 0.6;
+    transform: scale(0.9);
   }
 }
 
 @keyframes pulse-outer {
   0% {
-    opacity: 0.4;
+    opacity: 0.3;
     transform: scale(1.1);
+  }
+  25% {
+    opacity: 0.55;
   }
   50% {
     opacity: 0.7;
+    transform: scale(1);
+  }
+  75% {
+    opacity: 0.55;
   }
   100% {
-    opacity: 0.4;
-    transform: scale(1);
+    opacity: 0.3;
+    transform: scale(1.1);
   }
 }
 
@@ -1495,5 +1511,44 @@ watch(() => isBoardingCircle.value, (newVal) => {
   .route-line {
     min-width: 360px;
   }
+}
+
+.completion-icon-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+@keyframes ellipsis-blink {
+  0%, 60%, 100% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+}
+
+.animated-ellipsis {
+  display: inline-block;
+  width: 1.2em;
+  vertical-align: bottom;
+}
+
+.animated-ellipsis span {
+  animation: ellipsis-blink 1.4s infinite;
+  opacity: 0;
+}
+
+.animated-ellipsis span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.animated-ellipsis span:nth-child(2) {
+  animation-delay: 0.35s;
+}
+
+.animated-ellipsis span:nth-child(3) {
+  animation-delay: 0.7s;
 }
 </style>
