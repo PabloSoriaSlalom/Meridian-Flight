@@ -10,6 +10,7 @@ import checkinBgImage from '@/images/checkin_bg.jpg'
 import securityBgImage from '@/images/security_bg.jpg'
 import loungeBgImage from '@/images/lounge_bg.jpg'
 import boardingBgImage from '@/images/boarding_bg.jpg'
+import onboardBgImage from '@/images/onboard_bg.jpg'
 
 const route = useRoute()
 const router = useRouter()
@@ -19,19 +20,29 @@ const nameInput = ref('')
 const isWelcomeJourneyView = computed(() => route.name === 'journey' && activeStage.value.kind === 'welcome')
 const isLobbyCircleView = computed(() => route.name === 'journey' && journeyState.value === 'lobbyCircle')
 const isCheckInReadyView = computed(() => route.name === 'journey' && journeyState.value === 'checkInReady')
+const isSynchronizingLobbyView = computed(() => route.name === 'journey' && journeyState.value === 'synchronizingLobby')
+const isLobbyLikeView = computed(() => isLobbyCircleView.value || isCheckInReadyView.value || isSynchronizingLobbyView.value)
+const isLobbyBgImageView = computed(() => isLobbyCircleView.value || isCheckInReadyView.value)
 const isCheckInProcessingView = computed(() => route.name === 'journey' && journeyState.value === 'checkInProcessing')
-const isCheckInInsideCircleView = computed(() => route.name === 'journey' && journeyState.value === 'checkInCircle' && !checkInComplete.value)
-const isCheckInBackgroundView = computed(() => isCheckInProcessingView.value || isCheckInInsideCircleView.value)
+const isCheckInInsideCircleView = computed(() => route.name === 'journey' && journeyState.value === 'checkInCircle')
+const isSynchronizingCheckInView = computed(() => route.name === 'journey' && journeyState.value === 'synchronizingCheckIn')
+const isCheckInBackgroundView = computed(() => (isCheckInProcessingView.value || isCheckInInsideCircleView.value) && !checkInComplete.value)
+const isCheckInBgPaddingView = computed(() => isCheckInProcessingView.value || isCheckInInsideCircleView.value || isSynchronizingCheckInView.value)
 const isSecurityProcessingView = computed(() => route.name === 'journey' && journeyState.value === 'securityProcessing')
-const isSecurityInsideCircleView = computed(() => route.name === 'journey' && journeyState.value === 'securityCircle' && !securityComplete.value)
-const isSecurityBackgroundView = computed(() => isSecurityProcessingView.value || isSecurityInsideCircleView.value)
+const isSecurityInsideCircleView = computed(() => route.name === 'journey' && journeyState.value === 'securityCircle')
+const isSynchronizingSecurityView = computed(() => route.name === 'journey' && journeyState.value === 'synchronizingSecurity')
+const isSecurityBackgroundView = computed(() => (isSecurityProcessingView.value || isSecurityInsideCircleView.value) && !securityComplete.value)
+const isSecurityBgPaddingView = computed(() => isSecurityProcessingView.value || isSecurityInsideCircleView.value || isSynchronizingSecurityView.value)
 const isLoungeCircleView = computed(() => route.name === 'journey' && journeyState.value === 'loungeCircle')
 const isNowBoardingView = computed(() => route.name === 'journey' && journeyState.value === 'nowBoarding')
-const isLoungeBackgroundView = computed(() => isLoungeCircleView.value || isNowBoardingView.value)
+const isSynchronizingLoungeView = computed(() => route.name === 'journey' && journeyState.value === 'synchronizingLounge')
+const isLoungeBgPaddingView = computed(() => isLoungeCircleView.value || isNowBoardingView.value || isSynchronizingLoungeView.value)
 const isBoardingCircleView = computed(() => route.name === 'journey' && journeyState.value === 'boardingCircle')
 const isBoardingProcessingView = computed(() => route.name === 'journey' && journeyState.value === 'boardingProcessing')
+const isSynchronizingBoardingView = computed(() => route.name === 'journey' && journeyState.value === 'synchronizingBoarding')
 const isBoardingBackgroundView = computed(() => (isBoardingCircleView.value || isBoardingProcessingView.value) && !boardingPassGenerated.value)
-const isLobbyLikeView = computed(() => isLobbyCircleView.value || isCheckInReadyView.value)
+const isBoardingBgPaddingView = computed(() => (isBoardingCircleView.value || isBoardingProcessingView.value || isSynchronizingBoardingView.value) && !boardingPassGenerated.value)
+const isOnboardView = computed(() => route.name === 'journey' && journeyState.value === 'onboard')
 const needsPersonalization = computed(() => passengerFirstName.value.trim().length === 0)
 const canContinue = computed(() => nameInput.value.trim().length > 0)
 
@@ -87,7 +98,7 @@ function continueWithName() {
               </div>
             </section>
 
-            <section v-else :class="['shell-content', { 'shell-content--welcome': isWelcomeJourneyView, 'shell-content--lobby': isLobbyCircleView || isCheckInReadyView, 'shell-content--checkin': isCheckInBackgroundView, 'shell-content--security': isSecurityBackgroundView, 'shell-content--lounge': isLoungeBackgroundView, 'shell-content--boarding': isBoardingBackgroundView }]" :style="isWelcomeJourneyView ? { backgroundImage: `url(${heroImage})` } : isLobbyCircleView || isCheckInReadyView ? { backgroundImage: `url(${lobbyBgImage})` } : isCheckInBackgroundView ? { backgroundImage: `url(${checkinBgImage})` } : isSecurityBackgroundView ? { backgroundImage: `url(${securityBgImage})` } : isLoungeBackgroundView ? { backgroundImage: `url(${loungeBgImage})` } : isBoardingBackgroundView ? { backgroundImage: `url(${boardingBgImage})` } : {}">
+            <section v-else :class="['shell-content', { 'shell-content--welcome': isWelcomeJourneyView, 'shell-content--lobby': isLobbyLikeView, 'shell-content--checkin': isCheckInBgPaddingView, 'shell-content--security': isSecurityBgPaddingView, 'shell-content--lounge': isLoungeBgPaddingView, 'shell-content--boarding': isBoardingBgPaddingView, 'shell-content--onboard': isOnboardView }]" :style="isWelcomeJourneyView ? { backgroundImage: `url(${heroImage})` } : isLobbyBgImageView ? { backgroundImage: `url(${lobbyBgImage})` } : isCheckInBackgroundView ? { backgroundImage: `url(${checkinBgImage})` } : isSecurityBackgroundView ? { backgroundImage: `url(${securityBgImage})` } : isLoungeCircleView || isNowBoardingView ? { backgroundImage: `url(${loungeBgImage})` } : isBoardingBackgroundView ? { backgroundImage: `url(${boardingBgImage})` } : isOnboardView ? { backgroundImage: `url(${onboardBgImage})` } : {}">
               <RouterView />
             </section>
           </section>
@@ -101,7 +112,6 @@ function continueWithName() {
               :disabled="isWelcomeJourneyView"
               @click="resetJourney"
             >
-              <FeatherIcon name="rotate-ccw" size="16" />
               <span>Reset Experience</span>
             </v-btn>
           </div>
@@ -399,6 +409,34 @@ function continueWithName() {
 }
 
 .shell-content--boarding > * {
+  position: relative;
+  z-index: 1;
+}
+
+.shell-content--onboard {
+  flex: 1;
+  height: 100%;
+  padding: 0 16px;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+}
+
+.shell-content--onboard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(9, 15, 45, 0.80);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.shell-content--onboard > * {
   position: relative;
   z-index: 1;
 }

@@ -104,7 +104,7 @@ const stages: JourneyStage[] = [
     id: 4,
     kind: 'journey',
     routeLabel: 'Lounge',
-    icon: 'home',
+    icon: 'arrow-right',
     locationLead: '',
     location: 'Departure Lounge Circle C4',
     destination: '',

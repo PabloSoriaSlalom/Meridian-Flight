@@ -185,7 +185,7 @@ const primaryActionLabel = computed(() => {
   }
 
   if (isBoardingPassShowing.value) {
-    return 'Continue'
+    return null
   }
 
   if (routeInstruction.value) {
@@ -196,7 +196,7 @@ const primaryActionLabel = computed(() => {
 })
 
 const showBottomAction = computed(
-  () => !isWelcome.value && !isLobbyCircle.value && !isCheckInReady.value && !isProcessing.value && !isBoardingProcessing.value && !!primaryActionLabel.value,
+  () => !isWelcome.value && !isLobbyCircle.value && !isCheckInReady.value && !isProcessing.value && !isBoardingProcessing.value && !isBoardingPassShowing.value && !isBoardingCompletionShowing.value && !!primaryActionLabel.value,
 )
 
 // Reset boarding completion flag when leaving boarding circle
@@ -472,8 +472,8 @@ watch(() => isBoardingCircle.value, (newVal) => {
     </div>
 
     <div v-if="isBoardingCompletionShowing" class="lobby-outside">
-      <p class="lobby-guidance">
-        The boarding process is complete.
+      <p class="lobby-guidance boarding-completion-title">
+        <span class="boarding-completion-emphasis">The boarding process is complete.</span>
       </p>
       <p class="lobby-guidance">
         Thank you for choosing Meridian Space.
@@ -492,30 +492,14 @@ watch(() => isBoardingCircle.value, (newVal) => {
     </div>
 
     <div v-if="isOnboard" class="lobby-outside">
-      <div class="icon-wrap icon-wrap--outside">
-        <FeatherIcon :name="activeStage.icon" size="54" color="#f7af43" />
-      </div>
       <h2 class="lobby-location">Welcome aboard.</h2>
       <p class="mission-flight">Flight M102</p>
-      
-      <div class="mission-card">
-        <div class="mission-details">
-          <div class="mission-field">
-            <p class="mission-label">Seat</p>
-            <p class="mission-value">14A</p>
-          </div>
-          <div class="mission-field">
-            <p class="mission-label">Mission</p>
-            <p class="mission-value">LEO-1</p>
-          </div>
-        </div>
-      </div>
       
       <p class="completion-message">Final launch preparations underway.</p>
     </div>
 
     <section
-      v-if="!isCheckInReadyScreen && !isSecurityReadyScreen && !isLoungeReadyScreen && !isLoungeCountdown && !isBoardingCircleReady && !isBoardingProcessing && !isBoardingPassShowing && !isLobbyCircle && !isCheckInReady && !isSynchronizingLobby && !isSynchronizingCheckIn && !isSynchronizingSecurity && !isSynchronizingLounge && !isSynchronizingBoarding"
+      v-if="!isCheckInReadyScreen && !isSecurityReadyScreen && !isLoungeReadyScreen && !isLoungeCountdown && !isBoardingCircleReady && !isBoardingProcessing && !isBoardingPassShowing && !isBoardingCompletionShowing && !isLobbyCircle && !isCheckInReady && !isSynchronizingLobby && !isSynchronizingCheckIn && !isSynchronizingSecurity && !isSynchronizingLounge && !isSynchronizingBoarding"
       :class="[
         'stage-panel',
         {
@@ -645,10 +629,12 @@ watch(() => isBoardingCircle.value, (newVal) => {
 
 <style scoped>
 .journey-view {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto 1fr;
   gap: 20px;
   padding-bottom: 24px;
+  flex: 1;
+  height: 100%;
 }
 
 .journey-view--welcome {
@@ -678,6 +664,8 @@ watch(() => isBoardingCircle.value, (newVal) => {
   padding-top: 28px;
   padding-bottom: 48px;
   flex-shrink: 0;
+  width: 100%;
+  background: transparent;
 }
 
 .route-line {
@@ -815,7 +803,7 @@ watch(() => isBoardingCircle.value, (newVal) => {
   justify-content: center;
   background: rgba(241, 201, 138, 0.12);
   border: 1.5px solid rgba(241, 201, 138, 0.25);
-  margin-bottom: 16px;
+  margin-bottom: 8px;
   transition: all 0.3s ease;
 }
 
@@ -836,6 +824,7 @@ watch(() => isBoardingCircle.value, (newVal) => {
   text-align: center;
   margin: 2px 0 2px;
   width: 100%;
+  flex: 1;
 }
 
 .lobby-outside--checkin-complete {
@@ -875,9 +864,10 @@ watch(() => isBoardingCircle.value, (newVal) => {
 }
 
 .lobby-location--boarding {
-  font-size: 1.7rem;
+  font-size: 2.1rem;
   font-weight: 500;
   letter-spacing: 0.03em;
+  margin-bottom: 24px;
 }
 
 .lobby-you-are {
@@ -1110,6 +1100,12 @@ watch(() => isBoardingCircle.value, (newVal) => {
   color: #f7af43;
 }
 
+.boarding-completion-emphasis {
+  font-weight: 700;
+  color: #f7af43;
+  font-size: 1.2rem;
+}
+
 .welcome-instruction-card {
   max-width: 320px;
   padding: 20px 16px;
@@ -1340,6 +1336,7 @@ watch(() => isBoardingCircle.value, (newVal) => {
 .lobby-outside--sync {
   min-height: 240px;
   justify-content: center;
+  flex: 1;
 }
 
 .sync-icon-wrap {
@@ -1440,7 +1437,7 @@ watch(() => isBoardingCircle.value, (newVal) => {
   font-size: 1rem;
   font-weight: 500;
   color: #f7af43;
-  margin: 12px 0 24px;
+  margin: 8px 0 12px;
   text-align: center;
   letter-spacing: 0.02em;
 }
