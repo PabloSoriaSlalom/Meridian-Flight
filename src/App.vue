@@ -239,9 +239,8 @@ function continueWithName() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-size: 20%;
+  background-size: 115%;
   background-position: center;
-  background-attachment: fixed;
   background-repeat: no-repeat;
   position: relative;
 }
