@@ -118,6 +118,7 @@ function continueWithName() {
   padding: 16px;
   background: radial-gradient(120% 120% at 20% 0%, #485696 0%, #12182e 48%, #0a0e1f 100%);
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .meridian-bg--welcome {
@@ -532,8 +533,9 @@ function continueWithName() {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  height: calc(100vh - 32px);
   padding: 40px 20px;
+  box-sizing: border-box;
 }
 
 .intro-section {

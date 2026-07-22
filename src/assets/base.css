@@ -15,8 +15,13 @@
   font-weight: normal;
 }
 
+html,
 body {
-  min-height: 100vh;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
   color: var(--meridian-light);
   background: var(--meridian-ink);
   line-height: 1.6;
