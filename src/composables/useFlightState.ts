@@ -641,14 +641,24 @@ function getNextImageForState(state: JourneyState): string {
   return imageMap[state] || ''
 }
 
-// Watch for journey state changes and preload the next image
-watch(journeyState, (newState) => {
-  preloadImage(getNextImageForState(newState))
-}, { immediate: true })
+// Preload all background images and logo images on app init
+function preloadAllImages(): void {
+  // Preload all background images
+  preloadImage(new URL('@/images/hero2.jpg', import.meta.url).href)
+  preloadImage(new URL('@/images/lobby_bg.jpg', import.meta.url).href)
+  preloadImage(new URL('@/images/checkin_bg.jpg', import.meta.url).href)
+  preloadImage(new URL('@/images/security_bg.jpg', import.meta.url).href)
+  preloadImage(new URL('@/images/lounge_bg.jpg', import.meta.url).href)
+  preloadImage(new URL('@/images/boarding_bg.jpg', import.meta.url).href)
+  preloadImage(new URL('@/images/onboard_bg.jpg', import.meta.url).href)
+  
+  // Preload logo images
+  preloadImage(new URL('@/images/MS_logo.png', import.meta.url).href)
+  preloadImage(new URL('@/images/MS_logoV.png', import.meta.url).href)
+}
 
-// Preload logo images on init
-preloadImage(new URL('@/images/MS_logo.png', import.meta.url).href)
-preloadImage(new URL('@/images/MS_logoV.png', import.meta.url).href)
+// Call preload on init
+preloadAllImages()
 
 export function useFlightState() {
   return {
