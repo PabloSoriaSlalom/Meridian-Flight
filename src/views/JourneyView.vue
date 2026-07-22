@@ -236,204 +236,204 @@ watch(() => isBoardingCircle.value, (newVal) => {
     </div>
 
     <div v-if="isSynchronizingLobby" class="lobby-outside lobby-outside--sync">
-      <h2 class="lobby-location">Synchronizing with <span class="route-emphasis">Passenger Lobby Circle</span><span class="animated-ellipsis"><span>.</span><span>.</span><span>.</span></span></h2>
-      <div class="sync-icon-wrap">
+      <h2 class="lobby-location sync-entrance--heading">Synchronizing with <span class="route-emphasis">Passenger Lobby Circle</span><span class="animated-ellipsis"><span>.</span><span>.</span><span>.</span></span></h2>
+      <div class="sync-icon-wrap sync-entrance--spinner">
         <div class="sync-spinner-dual">
           <div class="sync-circle sync-circle-inner"></div>
           <div class="sync-circle sync-circle-outer"></div>
         </div>
       </div>
-      <p class="lobby-guidance sync-text">
+      <p class="lobby-guidance sync-text sync-entrance--text">
         Securing connection
       </p>
     </div>
 
     <div v-if="isLobbyCircle" class="lobby-outside lobby-outside--lobby">
-      <StageIcon :icon="activeStage.icon" wrapper-class="icon-wrap--outside" />
-      <h2 class="lobby-location">Passenger Lobby Circle</h2>
-      <p class="lobby-guidance lobby-guidance--bold lobby-guidance--intro lobby-guidance--bracketed">
+      <StageIcon :icon="activeStage.icon" wrapper-class="icon-wrap--outside lobby-circle-entrance--icon" />
+      <h2 class="lobby-location lobby-circle-entrance--heading">Passenger Lobby Circle</h2>
+      <p class="lobby-guidance lobby-guidance--bold lobby-guidance--intro lobby-guidance--bracketed lobby-circle-entrance--para1">
         You're inside the <span class="route-emphasis">Passenger Lobby Circle</span>.
       </p>
-      <p class="lobby-guidance">
+      <p class="lobby-guidance lobby-circle-entrance--para2">
         Meridian guides passengers through connected <span class="route-emphasis">Circles</span> and dedicated <span class="route-emphasis">Routes</span>.
       </p>
-      <p class="lobby-guidance">
+      <p class="lobby-guidance lobby-circle-entrance--para3">
         Each <span class="route-emphasis">Circle</span> securely synchronizes your device with the next stage of boarding.
       </p>
       <ActionButton
         label="Continue"
         variant="continue"
-        wrapper-class="action-btn-wrap--lobby"
+        wrapper-class="action-btn-wrap--lobby lobby-circle-entrance--btn"
         :on-click="advanceJourney"
       />
     </div>
 
     <div v-if="isCheckInReady" class="lobby-outside">
-      <p class="checkin-ready-subtitle">Continue to the <span class="route-emphasis">Check-in Circle</span></p>
-      <div class="guidance-box">
-        <h3 class="guidance-box-title"><span class="route-emphasis">Check-in Circle</span></h3>
-        <p class="lobby-guidance">
+      <p class="checkin-ready-subtitle checkin-ready-entrance--subtitle">Continue to the <span class="route-emphasis">Check-in Circle</span></p>
+      <div class="guidance-box checkin-ready-entrance--box">
+        <h3 class="guidance-box-title checkin-ready-entrance--title"><span class="route-emphasis">Check-in Circle</span></h3>
+        <p class="lobby-guidance checkin-ready-entrance--para1">
           Walk over to the next <span class="route-emphasis">Circle</span>,<br />the <span class="route-emphasis">Check-in Circle</span>.
         </p>
-        <p class="lobby-guidance">
+        <p class="lobby-guidance checkin-ready-entrance--para2">
           Follow the <span class="route-emphasis">Blue Route</span> to the <span class="route-emphasis">Circle</span>. Once inside, tap the button below to begin check-in.
         </p>
       </div>
       <ActionButton
         label="I'm Inside the Circle"
-        wrapper-class="action-btn-wrap--check-in"
+        wrapper-class="action-btn-wrap--check-in checkin-ready-entrance--btn"
         :on-click="advanceJourney"
       />
     </div>
 
     <div v-if="isSynchronizingCheckIn" class="lobby-outside lobby-outside--sync">
-      <h2 class="lobby-location">Synchronizing with <span class="route-emphasis">Check-in Circle</span><span class="animated-ellipsis"><span>.</span><span>.</span><span>.</span></span></h2>
-      <div class="sync-icon-wrap">
+      <h2 class="lobby-location sync-checkin-entrance--heading">Synchronizing with <span class="route-emphasis">Check-in Circle</span><span class="animated-ellipsis"><span>.</span><span>.</span><span>.</span></span></h2>
+      <div class="sync-icon-wrap sync-checkin-entrance--spinner">
         <div class="sync-spinner-dual">
           <div class="sync-circle sync-circle-inner"></div>
           <div class="sync-circle sync-circle-outer"></div>
         </div>
       </div>
-      <p class="lobby-guidance sync-text">
+      <p class="lobby-guidance sync-text sync-checkin-entrance--text">
         Securing connection
       </p>
     </div>
 
     <div v-if="isCheckInReadyScreen" class="lobby-outside">
-      <StageIcon :icon="activeStage.icon" wrapper-class="icon-wrap--outside" />
-      <h2 class="lobby-location">Check-in Circle</h2>
-      <p class="lobby-guidance lobby-guidance--bold lobby-guidance--intro lobby-guidance--bracketed">
+      <StageIcon :icon="activeStage.icon" wrapper-class="icon-wrap--outside checkin-circle-entrance--icon" />
+      <h2 class="lobby-location checkin-circle-entrance--heading">Check-in Circle</h2>
+      <p class="lobby-guidance lobby-guidance--bold lobby-guidance--intro lobby-guidance--bracketed checkin-circle-entrance--para1">
         You're inside the <span class="route-emphasis">Check-in Circle</span>.
       </p>
-      <p class="lobby-guidance">
+      <p class="lobby-guidance checkin-circle-entrance--para2">
         Your device is synchronized and ready.
       </p>
-      <p class="lobby-guidance">
+      <p class="lobby-guidance checkin-circle-entrance--para3">
         Tap below to begin check-in.
       </p>
     </div>
 
     <div v-if="isCheckInCircle && checkInComplete" class="lobby-outside lobby-outside--checkin-complete">
-      <div class="completion-icon-wrap">
+      <div class="completion-icon-wrap checkin-complete-entrance--icon">
         <FeatherIcon name="check" :size="48" color="#ffffff" />
       </div>
-      <p class="checkin-complete-line"><span class="welcome-emphasis">Check-in complete.</span></p>
-      <p class="lobby-guidance lobby-guidance--compact">Continue to the <span class="route-emphasis">Security Circle</span>.</p>
+      <p class="checkin-complete-line checkin-complete-entrance--title"><span class="welcome-emphasis">Check-in complete.</span></p>
+      <p class="lobby-guidance lobby-guidance--compact checkin-complete-entrance--para">Continue to the <span class="route-emphasis">Security Circle</span>.</p>
     </div>
 
     <div v-if="isSynchronizingSecurity" class="lobby-outside lobby-outside--sync">
-      <h2 class="lobby-location">Synchronizing with <span class="route-emphasis">Security Circle</span><span class="animated-ellipsis"><span>.</span><span>.</span><span>.</span></span></h2>
-      <div class="sync-icon-wrap">
+      <h2 class="lobby-location sync-security-entrance--heading">Synchronizing with <span class="route-emphasis">Security Circle</span><span class="animated-ellipsis"><span>.</span><span>.</span><span>.</span></span></h2>
+      <div class="sync-icon-wrap sync-security-entrance--spinner">
         <div class="sync-spinner-dual">
           <div class="sync-circle sync-circle-inner"></div>
           <div class="sync-circle sync-circle-outer"></div>
         </div>
       </div>
-      <p class="lobby-guidance sync-text">
+      <p class="lobby-guidance sync-text sync-security-entrance--text">
         Securing connection
       </p>
     </div>
 
     <div v-if="isSecurityReadyScreen" class="lobby-outside">
-      <StageIcon :icon="activeStage.icon" wrapper-class="icon-wrap--outside" />
-      <h2 class="lobby-location">Security Circle</h2>
-      <p class="lobby-guidance lobby-guidance--bold lobby-guidance--intro lobby-guidance--bracketed">
+      <StageIcon :icon="activeStage.icon" wrapper-class="icon-wrap--outside security-circle-entrance--icon" />
+      <h2 class="lobby-location security-circle-entrance--heading">Security Circle</h2>
+      <p class="lobby-guidance lobby-guidance--bold lobby-guidance--intro lobby-guidance--bracketed security-circle-entrance--para1">
         You're inside the <span class="route-emphasis">Security Circle</span>.
       </p>
-      <p class="lobby-guidance">
+      <p class="lobby-guidance security-circle-entrance--para2">
         Your device is synchronized and ready.
       </p>
-      <p class="lobby-guidance">
+      <p class="lobby-guidance security-circle-entrance--para3">
         Tap below to begin security screening.
       </p>
     </div>
 
     <div v-if="isSecurityCircle && securityComplete" class="lobby-outside lobby-outside--checkin-complete">
-      <div class="completion-icon-wrap">
+      <div class="completion-icon-wrap security-complete-entrance--icon">
         <FeatherIcon name="check" :size="48" color="#ffffff" />
       </div>
-      <p class="checkin-complete-line"><span class="welcome-emphasis">Security screening complete.</span></p>
-      <p class="lobby-guidance lobby-guidance--compact">Continue to the <span class="route-emphasis">Departure Lounge Circle</span>.</p>
+      <p class="checkin-complete-line security-complete-entrance--title"><span class="welcome-emphasis">Security screening complete.</span></p>
+      <p class="lobby-guidance lobby-guidance--compact security-complete-entrance--para">Continue to the <span class="route-emphasis">Departure Lounge Circle</span>.</p>
     </div>
 
     <div v-if="isSynchronizingLounge" class="lobby-outside lobby-outside--sync">
-      <h2 class="lobby-location">Synchronizing with <span class="route-emphasis">Departure Lounge Circle</span><span class="animated-ellipsis"><span>.</span><span>.</span><span>.</span></span></h2>
-      <div class="sync-icon-wrap">
+      <h2 class="lobby-location sync-lounge-entrance--heading">Synchronizing with <span class="route-emphasis">Departure Lounge Circle</span><span class="animated-ellipsis"><span>.</span><span>.</span><span>.</span></span></h2>
+      <div class="sync-icon-wrap sync-lounge-entrance--spinner">
         <div class="sync-spinner-dual">
           <div class="sync-circle sync-circle-inner"></div>
           <div class="sync-circle sync-circle-outer"></div>
         </div>
       </div>
-      <p class="lobby-guidance sync-text">
+      <p class="lobby-guidance sync-text sync-lounge-entrance--text">
         Securing connection
       </p>
     </div>
 
     <div v-if="isLoungeCircle" class="lobby-outside">
-      <StageIcon :icon="activeStage.icon" wrapper-class="icon-wrap--outside" />
-      <h2 class="lobby-location">Departure Lounge Circle</h2>
-      <p class="lobby-guidance lobby-guidance--bold lobby-guidance--intro lobby-guidance--bracketed">
+      <StageIcon :icon="activeStage.icon" wrapper-class="icon-wrap--outside lounge-circle-entrance--icon" />
+      <h2 class="lobby-location lounge-circle-entrance--heading">Departure Lounge Circle</h2>
+      <p class="lobby-guidance lobby-guidance--bold lobby-guidance--intro lobby-guidance--bracketed lounge-circle-entrance--para1">
         You're inside the <span class="route-emphasis">Departure Lounge Circle</span>.
       </p>
-      <p class="lobby-guidance">
+      <p class="lobby-guidance lounge-circle-entrance--para2">
         Please remain inside the Circle until boarding begins.
       </p>
-      <p class="countdown-display">
+      <p class="countdown-display lounge-circle-entrance--countdown">
         Boarding will begin in <span class="countdown-timer">{{ loungeCountdownSeconds }}s</span>
       </p>
     </div>
 
     <div v-if="isNowBoarding" class="lobby-outside">
-      <div class="completion-icon-wrap">
+      <div class="completion-icon-wrap now-boarding-entrance--icon">
         <FeatherIcon name="arrow-right" :size="48" color="#ffffff" />
       </div>
-      <h2 class="lobby-location lobby-location--boarding">Boarding has begun.</h2>
-      <p class="lobby-guidance">
+      <h2 class="lobby-location lobby-location--boarding now-boarding-entrance--heading">Boarding has begun.</h2>
+      <p class="lobby-guidance now-boarding-entrance--para">
         Continue to the <span class="route-emphasis">Boarding Circle</span>.
       </p>
     </div>
 
     <div v-if="isSynchronizingBoarding" class="lobby-outside lobby-outside--sync">
-      <h2 class="lobby-location">Synchronizing with <span class="route-emphasis">Boarding Circle</span><span class="animated-ellipsis"><span>.</span><span>.</span><span>.</span></span></h2>
-      <div class="sync-icon-wrap">
+      <h2 class="lobby-location sync-boarding-entrance--heading">Synchronizing with <span class="route-emphasis">Boarding Circle</span><span class="animated-ellipsis"><span>.</span><span>.</span><span>.</span></span></h2>
+      <div class="sync-icon-wrap sync-boarding-entrance--spinner">
         <div class="sync-spinner-dual">
           <div class="sync-circle sync-circle-inner"></div>
           <div class="sync-circle sync-circle-outer"></div>
         </div>
       </div>
-      <p class="lobby-guidance sync-text">
+      <p class="lobby-guidance sync-text sync-boarding-entrance--text">
         Securing connection
       </p>
     </div>
 
     <div v-if="isBoardingCircleReady" class="lobby-outside">
-      <StageIcon icon="log-in" wrapper-class="icon-wrap--outside" />
-      <h2 class="lobby-location">Boarding Circle</h2>
-      <p class="lobby-guidance lobby-guidance--bold lobby-guidance--intro lobby-guidance--bracketed">
+      <StageIcon icon="log-in" wrapper-class="icon-wrap--outside boarding-circle-entrance--icon" />
+      <h2 class="lobby-location boarding-circle-entrance--heading">Boarding Circle</h2>
+      <p class="lobby-guidance lobby-guidance--bold lobby-guidance--intro lobby-guidance--bracketed boarding-circle-entrance--para1">
         You're inside the <span class="route-emphasis">Boarding Circle</span>.
       </p>
-      <p class="lobby-guidance">
+      <p class="lobby-guidance boarding-circle-entrance--para2">
         Your device is synchronized and ready.
       </p>
-      <p class="lobby-guidance">
+      <p class="lobby-guidance boarding-circle-entrance--para3">
         Tap below to generate your <span class="route-emphasis">boarding credential</span>.
       </p>
     </div>
 
     <div v-if="isBoardingProcessing" class="lobby-outside lobby-outside--sync">
-      <h2 class="lobby-location">Generating your boarding pass...</h2>
-      <div class="sync-icon-wrap">
+      <h2 class="lobby-location boarding-processing-entrance--heading">Generating your boarding pass...</h2>
+      <div class="sync-icon-wrap boarding-processing-entrance--spinner">
         <FeatherIcon name="loader" size="56" color="#f7af43" class="icon-spin" />
       </div>
-      <p class="lobby-guidance sync-text">
+      <p class="lobby-guidance sync-text boarding-processing-entrance--text">
         Please wait
       </p>
     </div>
 
     <div v-if="isBoardingPassShowing" class="lobby-outside">
-      <h2 class="lobby-location">Boarding Pass</h2>
-      <img src="@/images/pass.svg" alt="Boarding Pass QR Code" class="boarding-pass-image" />
-      <div class="boarding-pass-container">
+      <h2 class="lobby-location boarding-pass-entrance--heading">Boarding Pass</h2>
+      <img src="@/images/pass.svg" alt="Boarding Pass QR Code" class="boarding-pass-image boarding-pass-entrance--qr" />
+      <div class="boarding-pass-container boarding-pass-entrance--details">
         <div class="boarding-pass-details">
           <div class="pass-detail">
             <p class="detail-label">Passenger</p>
@@ -445,41 +445,41 @@ watch(() => isBoardingCircle.value, (newVal) => {
           </div>
         </div>
       </div>
-      <p class="lobby-guidance">
+      <p class="lobby-guidance boarding-pass-entrance--para1">
         Your boarding pass is ready.
       </p>
-      <p class="lobby-guidance">
+      <p class="lobby-guidance boarding-pass-entrance--para2">
         Present this pass for boarding.
       </p>
       <ActionButton
         label="Continue"
-        wrapper-class="action-btn-wrap--boarding"
+        wrapper-class="action-btn-wrap--boarding boarding-pass-entrance--btn"
         :on-click="() => (showBoardingCompletion = true)"
       />
     </div>
 
     <div v-if="isBoardingCompletionShowing" class="lobby-outside">
-      <div class="completion-icon-wrap">
+      <div class="completion-icon-wrap boarding-completion-entrance--icon">
         <FeatherIcon name="check" :size="48" color="#ffffff" />
       </div>
-      <p class="lobby-guidance boarding-completion-title">
+      <p class="lobby-guidance boarding-completion-title boarding-completion-entrance--title">
         <span class="boarding-completion-emphasis">The boarding process is complete.</span>
       </p>
-      <p class="lobby-guidance">
+      <p class="lobby-guidance boarding-completion-entrance--para">
         Thank you for choosing Meridian Space.
       </p>
       <ActionButton
         label="Continue"
-        wrapper-class="action-btn-wrap--boarding"
+        wrapper-class="action-btn-wrap--boarding boarding-completion-entrance--btn"
         :on-click="advanceJourney"
       />
     </div>
 
     <div v-if="isOnboard" class="lobby-outside">
-      <h2 class="lobby-location">Welcome aboard.</h2>
-      <p class="mission-flight">Flight M102</p>
+      <h2 class="lobby-location onboard-entrance--heading">Welcome aboard.</h2>
+      <p class="mission-flight onboard-entrance--flight">Flight M102</p>
       
-      <p class="completion-message">Final launch preparations underway.</p>
+      <p class="completion-message onboard-entrance--message">Final launch preparations underway.</p>
     </div>
 
     <section
@@ -489,6 +489,10 @@ watch(() => isBoardingCircle.value, (newVal) => {
         {
           'stage-panel--welcome': isWelcome,
           'stage-panel--centered': isLobbyCircle || (isCheckInCircle && checkInComplete) || (isSecurityCircle && securityComplete) || isOnboard,
+          'checkin-complete-entrance--card': isCheckInCircle && checkInComplete,
+          'security-complete-entrance--card': isSecurityCircle && securityComplete,
+          'now-boarding-entrance--card': isNowBoarding,
+          'onboard-entrance--card': isOnboard,
         },
       ]"
     >
@@ -523,7 +527,7 @@ watch(() => isBoardingCircle.value, (newVal) => {
       </template>
 
       <template v-else-if="isCheckInProcessing">
-        <p class="checkin-process-title">{{ dynamicProcessingTitle }}</p>
+        <p class="checkin-process-title checkin-processing-entrance--title">{{ dynamicProcessingTitle }}</p>
       </template>
 
       <template v-else>
@@ -534,7 +538,7 @@ watch(() => isBoardingCircle.value, (newVal) => {
         </template>
 
         <template v-else-if="isSecurityProcessing">
-          <p class="checkin-process-title">{{ dynamicProcessingTitle }}</p>
+          <p class="checkin-process-title security-processing-entrance--title">{{ dynamicProcessingTitle }}</p>
         </template>
 
         <template v-else-if="isNowBoarding">
@@ -574,8 +578,7 @@ watch(() => isBoardingCircle.value, (newVal) => {
         </template>
       </template>
 
-      <v-expand-transition>
-        <div :class="['processing-checklist', { 'processing-checklist--bare': isCheckInProcessing || isSecurityProcessing }]" v-if="isProcessing">
+      <div :class="['processing-checklist', { 'processing-checklist--bare': isCheckInProcessing || isSecurityProcessing, 'checkin-processing-entrance--list': isCheckInProcessing, 'security-processing-entrance--list': isSecurityProcessing }]" v-if="isProcessing">
           <div
             v-for="(step, index) in processingSteps"
             :key="step"
@@ -593,13 +596,12 @@ watch(() => isBoardingCircle.value, (newVal) => {
             <p>{{ step }}</p>
           </div>
         </div>
-      </v-expand-transition>
     </section>
 
       <ActionButton
         :label="primaryActionLabel"
         :show="showBottomAction"
-        :wrapper-class="{ 'action-btn-wrap--padded': isLobbyCircle }"
+        :wrapper-class="{ 'action-btn-wrap--padded': isLobbyCircle, 'checkin-circle-entrance--btn': isCheckInReadyScreen, 'checkin-complete-entrance--btn': isCheckInCircle && checkInComplete, 'security-circle-entrance--btn': isSecurityReadyScreen, 'security-complete-entrance--btn': isSecurityCircle && securityComplete, 'boarding-circle-entrance--btn': isBoardingCircleReady }"
         :on-click="advanceJourney"
       />
   </section>
@@ -1550,5 +1552,391 @@ watch(() => isBoardingCircle.value, (newVal) => {
 
 .animated-ellipsis span:nth-child(3) {
   animation-delay: 0.7s;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.welcome-logo {
+  animation: fadeInUp 600ms ease-out 100ms both;
+}
+
+.where-lead {
+  animation: fadeInUp 600ms ease-out 200ms both;
+}
+
+.where-name {
+  animation: fadeInUp 600ms ease-out 300ms both;
+}
+
+.welcome-flight-info {
+  animation: fadeInUp 600ms ease-out 400ms both;
+}
+
+.welcome-instruction-card {
+  animation: fadeInUp 600ms ease-out 500ms both;
+}
+
+.action-btn--welcome {
+  animation: fadeInUp 600ms ease-out 600ms both;
+}
+
+.sync-entrance--heading {
+  animation: fadeInUp 600ms ease-out 0ms both;
+}
+
+.sync-entrance--spinner {
+  animation: fadeInUp 600ms ease-out 100ms both;
+}
+
+.sync-entrance--text {
+  animation: fadeInUp 600ms ease-out 200ms both;
+}
+
+.lobby-circle-entrance--icon {
+  animation: fadeInUp 600ms ease-out 0ms both;
+}
+
+.lobby-circle-entrance--heading {
+  animation: fadeInUp 600ms ease-out 100ms both;
+}
+
+.lobby-circle-entrance--para1 {
+  animation: fadeInUp 600ms ease-out 200ms both;
+}
+
+.lobby-circle-entrance--para2 {
+  animation: fadeInUp 600ms ease-out 300ms both;
+}
+
+.lobby-circle-entrance--para3 {
+  animation: fadeInUp 600ms ease-out 400ms both;
+}
+
+.lobby-circle-entrance--btn {
+  animation: fadeInUp 600ms ease-out 500ms both;
+}
+
+.checkin-ready-entrance--subtitle {
+  animation: fadeInUp 600ms ease-out 0ms both;
+}
+
+.checkin-ready-entrance--box {
+  animation: fadeInUp 600ms ease-out 100ms both;
+}
+
+.checkin-ready-entrance--title {
+  animation: fadeInUp 600ms ease-out 200ms both;
+}
+
+.checkin-ready-entrance--para1 {
+  animation: fadeInUp 600ms ease-out 300ms both;
+}
+
+.checkin-ready-entrance--para2 {
+  animation: fadeInUp 600ms ease-out 400ms both;
+}
+
+.checkin-ready-entrance--btn {
+  animation: fadeInUp 600ms ease-out 500ms both;
+}
+
+.sync-checkin-entrance--heading {
+  animation: fadeInUp 600ms ease-out 0ms both;
+}
+
+.sync-checkin-entrance--spinner {
+  animation: fadeInUp 600ms ease-out 100ms both;
+}
+
+.sync-checkin-entrance--text {
+  animation: fadeInUp 600ms ease-out 200ms both;
+}
+
+.checkin-circle-entrance--icon {
+  animation: fadeInUp 600ms ease-out 0ms both;
+}
+
+.checkin-circle-entrance--heading {
+  animation: fadeInUp 600ms ease-out 100ms both;
+}
+
+.checkin-circle-entrance--para1 {
+  animation: fadeInUp 600ms ease-out 200ms both;
+}
+
+.checkin-circle-entrance--para2 {
+  animation: fadeInUp 600ms ease-out 300ms both;
+}
+
+.checkin-circle-entrance--para3 {
+  animation: fadeInUp 600ms ease-out 400ms both;
+}
+
+.checkin-circle-entrance--btn {
+  animation: fadeInUp 600ms ease-out 500ms both;
+}
+
+.checkin-processing-entrance--title {
+  animation: fadeInUp 600ms ease-out 0ms both;
+}
+
+.checkin-processing-entrance--list {
+  animation: fadeInUpSmall 600ms ease-out 100ms both;
+}
+
+.checkin-complete-entrance--icon {
+  animation: fadeInUp 600ms ease-out 0ms both;
+}
+
+.checkin-complete-entrance--title {
+  animation: fadeInUp 600ms ease-out 100ms both;
+}
+
+.checkin-complete-entrance--para {
+  animation: fadeInUp 600ms ease-out 200ms both;
+}
+
+.checkin-complete-entrance--card {
+  animation: fadeInUp 600ms ease-out 300ms both;
+}
+
+.checkin-complete-entrance--btn {
+  animation: fadeInUp 600ms ease-out 400ms both;
+}
+
+.sync-security-entrance--heading {
+  animation: fadeInUp 600ms ease-out 0ms both;
+}
+
+.sync-security-entrance--spinner {
+  animation: fadeInUp 600ms ease-out 100ms both;
+}
+
+.sync-security-entrance--text {
+  animation: fadeInUp 600ms ease-out 200ms both;
+}
+
+.security-circle-entrance--icon {
+  animation: fadeInUp 600ms ease-out 0ms both;
+}
+
+.security-circle-entrance--heading {
+  animation: fadeInUp 600ms ease-out 100ms both;
+}
+
+.security-circle-entrance--para1 {
+  animation: fadeInUp 600ms ease-out 200ms both;
+}
+
+.security-circle-entrance--para2 {
+  animation: fadeInUp 600ms ease-out 300ms both;
+}
+
+.security-circle-entrance--para3 {
+  animation: fadeInUp 600ms ease-out 400ms both;
+}
+
+.security-circle-entrance--btn {
+  animation: fadeInUp 600ms ease-out 500ms both;
+}
+
+.security-processing-entrance--title {
+  animation: fadeInUp 600ms ease-out 0ms both;
+}
+
+.security-processing-entrance--list {
+  animation: fadeInUpSmall 600ms ease-out 100ms both;
+}
+
+@keyframes fadeInUpSmall {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.security-complete-entrance--icon {
+  animation: fadeInUp 600ms ease-out 0ms both;
+}
+
+.security-complete-entrance--title {
+  animation: fadeInUp 600ms ease-out 100ms both;
+}
+
+.security-complete-entrance--para {
+  animation: fadeInUp 600ms ease-out 200ms both;
+}
+
+.security-complete-entrance--card {
+  animation: fadeInUp 600ms ease-out 300ms both;
+}
+
+.security-complete-entrance--btn {
+  animation: fadeInUp 600ms ease-out 400ms both;
+}
+
+.sync-lounge-entrance--heading {
+  animation: fadeInUp 600ms ease-out 0ms both;
+}
+
+.sync-lounge-entrance--spinner {
+  animation: fadeInUp 600ms ease-out 100ms both;
+}
+
+.sync-lounge-entrance--text {
+  animation: fadeInUp 600ms ease-out 200ms both;
+}
+
+.lounge-circle-entrance--icon {
+  animation: fadeInUp 600ms ease-out 0ms both;
+}
+
+.lounge-circle-entrance--heading {
+  animation: fadeInUp 600ms ease-out 100ms both;
+}
+
+.lounge-circle-entrance--para1 {
+  animation: fadeInUp 600ms ease-out 200ms both;
+}
+
+.lounge-circle-entrance--para2 {
+  animation: fadeInUp 600ms ease-out 300ms both;
+}
+
+.lounge-circle-entrance--countdown {
+  animation: fadeInUp 600ms ease-out 400ms both;
+}
+
+.now-boarding-entrance--icon {
+  animation: fadeInUp 600ms ease-out 0ms both;
+}
+
+.now-boarding-entrance--heading {
+  animation: fadeInUp 600ms ease-out 100ms both;
+}
+
+.now-boarding-entrance--para {
+  animation: fadeInUp 600ms ease-out 200ms both;
+}
+
+.now-boarding-entrance--card {
+  animation: fadeInUp 600ms ease-out 300ms both;
+}
+
+.sync-boarding-entrance--heading {
+  animation: fadeInUp 600ms ease-out 0ms both;
+}
+
+.sync-boarding-entrance--spinner {
+  animation: fadeInUp 600ms ease-out 100ms both;
+}
+
+.sync-boarding-entrance--text {
+  animation: fadeInUp 600ms ease-out 200ms both;
+}
+
+.boarding-circle-entrance--icon {
+  animation: fadeInUp 600ms ease-out 0ms both;
+}
+
+.boarding-circle-entrance--heading {
+  animation: fadeInUp 600ms ease-out 100ms both;
+}
+
+.boarding-circle-entrance--para1 {
+  animation: fadeInUp 600ms ease-out 200ms both;
+}
+
+.boarding-circle-entrance--para2 {
+  animation: fadeInUp 600ms ease-out 300ms both;
+}
+
+.boarding-circle-entrance--para3 {
+  animation: fadeInUp 600ms ease-out 400ms both;
+}
+
+.boarding-circle-entrance--btn {
+  animation: fadeInUp 600ms ease-out 500ms both;
+}
+
+.boarding-processing-entrance--heading {
+  animation: fadeInUp 600ms ease-out 0ms both;
+}
+
+.boarding-processing-entrance--spinner {
+  animation: fadeInUp 600ms ease-out 100ms both;
+}
+
+.boarding-processing-entrance--text {
+  animation: fadeInUp 600ms ease-out 200ms both;
+}
+
+.boarding-pass-entrance--heading {
+  animation: fadeInUp 600ms ease-out 0ms both;
+}
+
+.boarding-pass-entrance--qr {
+  animation: fadeInUp 600ms ease-out 100ms both;
+}
+
+.boarding-pass-entrance--details {
+  animation: fadeInUp 600ms ease-out 200ms both;
+}
+
+.boarding-pass-entrance--para1 {
+  animation: fadeInUp 600ms ease-out 300ms both;
+}
+
+.boarding-pass-entrance--para2 {
+  animation: fadeInUp 600ms ease-out 400ms both;
+}
+
+.boarding-pass-entrance--btn {
+  animation: fadeInUp 600ms ease-out 500ms both;
+}
+
+.boarding-completion-entrance--icon {
+  animation: fadeInUp 600ms ease-out 0ms both;
+}
+
+.boarding-completion-entrance--title {
+  animation: fadeInUp 600ms ease-out 100ms both;
+}
+
+.boarding-completion-entrance--para {
+  animation: fadeInUp 600ms ease-out 200ms both;
+}
+
+.boarding-completion-entrance--btn {
+  animation: fadeInUp 600ms ease-out 300ms both;
+}
+
+.onboard-entrance--heading {
+  animation: fadeInUp 600ms ease-out 0ms both;
+}
+
+.onboard-entrance--flight {
+  animation: fadeInUp 600ms ease-out 100ms both;
+}
+
+.onboard-entrance--message {
+  animation: fadeInUp 600ms ease-out 200ms both;
+}
+
+.onboard-entrance--card {
+  animation: fadeInUp 600ms ease-out 300ms both;
 }
 </style>

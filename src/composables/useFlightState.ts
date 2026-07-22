@@ -216,12 +216,20 @@ function getInitialJourneyState(): JourneyState {
   const stored = window.localStorage.getItem(FLOW_STORAGE_KEY)
   if (
     stored === 'welcome' ||
+    stored === 'synchronizingLobby' ||
     stored === 'lobbyCircle' ||
+    stored === 'checkInReady' ||
+    stored === 'synchronizingCheckIn' ||
     stored === 'checkInCircle' ||
     stored === 'checkInProcessing' ||
+    stored === 'synchronizingSecurity' ||
     stored === 'securityCircle' ||
     stored === 'securityProcessing' ||
+    stored === 'synchronizingLounge' ||
     stored === 'loungeCircle' ||
+    stored === 'nowBoarding' ||
+    stored === 'synchronizingBoarding' ||
+    stored === 'boardingCircle' ||
     stored === 'boardingProcessing' ||
     stored === 'onboard'
   ) {
@@ -296,7 +304,7 @@ const configuredLaunchTimeMs = Date.parse(flightStatus.launchTime)
 const launchTimeMs =
   Number.isFinite(configuredLaunchTimeMs) && configuredLaunchTimeMs > Date.now()
     ? configuredLaunchTimeMs
-    : Date.now() + 2 * 60 * 60 * 1000
+    : Date.now() + 27 * 60 * 1000
 
 const routeStages = computed(() => stages.filter((stage) => stage.kind === 'journey'))
 

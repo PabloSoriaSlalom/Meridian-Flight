@@ -47,6 +47,17 @@ const isOnboardView = computed(() => route.name === 'journey' && journeyState.va
 const needsPersonalization = computed(() => passengerFirstName.value.trim().length === 0)
 const canContinue = computed(() => nameInput.value.trim().length > 0)
 
+const backgroundKey = computed(() => {
+  if (isWelcomeJourneyView.value) return 'bg-welcome'
+  if (isLobbyBgImageView.value) return 'bg-lobby'
+  if (isCheckInBackgroundView.value) return 'bg-checkin'
+  if (isSecurityBackgroundView.value) return 'bg-security'
+  if (isLoungeCircleView.value) return 'bg-lounge'
+  if (isBoardingBackgroundView.value) return 'bg-boarding'
+  if (isOnboardView.value) return 'bg-onboard'
+  return 'bg-none'
+})
+
 function continueWithName() {
   if (!setPassengerFirstName(nameInput.value)) {
     return
@@ -97,7 +108,7 @@ function continueWithName() {
         <div v-else class="review-stack">
           <section :class="['phone-shell', { 'phone-shell--welcome': isWelcomeJourneyView }]">
 
-            <section :class="['shell-content', { 'shell-content--welcome': isWelcomeJourneyView, 'shell-content--lobby': isLobbyLikeView, 'shell-content--checkin': isCheckInBgPaddingView, 'shell-content--security': isSecurityBgPaddingView, 'shell-content--lounge': isLoungeBgPaddingView, 'shell-content--boarding': isBoardingBgPaddingView, 'shell-content--onboard': isOnboardView }]" :style="isWelcomeJourneyView ? { backgroundImage: `url(${heroImage})` } : isLobbyBgImageView ? { backgroundImage: `url(${lobbyBgImage})` } : isCheckInBackgroundView ? { backgroundImage: `url(${checkinBgImage})` } : isSecurityBackgroundView ? { backgroundImage: `url(${securityBgImage})` } : isLoungeCircleView ? { backgroundImage: `url(${loungeBgImage})` } : isBoardingBackgroundView ? { backgroundImage: `url(${boardingBgImage})` } : isOnboardView ? { backgroundImage: `url(${onboardBgImage})` } : {}">
+            <section :key="backgroundKey" :class="['shell-content', { 'shell-content--welcome': isWelcomeJourneyView, 'shell-content--lobby': isLobbyLikeView, 'shell-content--checkin': isCheckInBgPaddingView, 'shell-content--security': isSecurityBgPaddingView, 'shell-content--lounge': isLoungeBgPaddingView, 'shell-content--boarding': isBoardingBgPaddingView, 'shell-content--onboard': isOnboardView }]" :style="isWelcomeJourneyView ? { backgroundImage: `url(${heroImage})` } : isLobbyBgImageView ? { backgroundImage: `url(${lobbyBgImage})` } : isCheckInBackgroundView ? { backgroundImage: `url(${checkinBgImage})` } : isSecurityBackgroundView ? { backgroundImage: `url(${securityBgImage})` } : isLoungeCircleView ? { backgroundImage: `url(${loungeBgImage})` } : isBoardingBackgroundView ? { backgroundImage: `url(${boardingBgImage})` } : isOnboardView ? { backgroundImage: `url(${onboardBgImage})` } : {}">
               <RouterView />
             </section>
           </section>
@@ -256,6 +267,7 @@ function continueWithName() {
   background: rgba(9, 15, 45, 0.80);
   pointer-events: none;
   z-index: 0;
+  animation: overlayReveal 800ms ease-out 0ms both;
 }
 
 .shell-content--welcome > * {
@@ -284,6 +296,7 @@ function continueWithName() {
   background: rgba(9, 15, 45, 0.80);
   pointer-events: none;
   z-index: 0;
+  animation: overlayReveal 800ms ease-out 0ms both;
 }
 
 .shell-content--lobby > * {
@@ -312,6 +325,7 @@ function continueWithName() {
   background: rgba(9, 15, 45, 0.80);
   pointer-events: none;
   z-index: 0;
+  animation: overlayReveal 800ms ease-out 0ms both;
 }
 
 .shell-content--checkin > * {
@@ -340,6 +354,7 @@ function continueWithName() {
   background: rgba(9, 15, 45, 0.80);
   pointer-events: none;
   z-index: 0;
+  animation: overlayReveal 800ms ease-out 0ms both;
 }
 
 .shell-content--security > * {
@@ -368,6 +383,7 @@ function continueWithName() {
   background: rgba(9, 15, 45, 0.80);
   pointer-events: none;
   z-index: 0;
+  animation: overlayReveal 800ms ease-out 0ms both;
 }
 
 .shell-content--lounge > * {
@@ -396,6 +412,7 @@ function continueWithName() {
   background: rgba(9, 15, 45, 0.80);
   pointer-events: none;
   z-index: 0;
+  animation: overlayReveal 800ms ease-out 0ms both;
 }
 
 .shell-content--boarding > * {
@@ -424,6 +441,7 @@ function continueWithName() {
   background: rgba(9, 15, 45, 0.80);
   pointer-events: none;
   z-index: 0;
+  animation: overlayReveal 800ms ease-out 0ms both;
 }
 
 .shell-content--onboard > * {
@@ -582,5 +600,14 @@ function continueWithName() {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-weight: 600;
+}
+
+@keyframes overlayReveal {
+  from {
+    background: rgba(9, 15, 45, 1.0);
+  }
+  to {
+    background: rgba(9, 15, 45, 0.80);
+  }
 }
 </style>
