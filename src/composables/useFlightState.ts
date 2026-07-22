@@ -609,6 +609,43 @@ function setExpressVerification(completed: boolean): void {
   securityRoute.value = completed ? 'express' : 'standard'
 }
 
+// Image preloading for performance
+function preloadImage(imagePath: string): void {
+  if (!imagePath) return
+  const img = new Image()
+  img.src = imagePath
+}
+
+// Map journey states to their background images
+function getNextImageForState(state: JourneyState): string {
+  // Import the actual image files for preloading
+  const imageMap: Record<JourneyState, string> = {
+    welcome: '',
+    synchronizingLobby: new URL('@/images/lobby_bg.jpg', import.meta.url).href,
+    lobbyCircle: new URL('@/images/lobby_bg.jpg', import.meta.url).href,
+    checkInReady: new URL('@/images/checkin_bg.jpg', import.meta.url).href,
+    synchronizingCheckIn: new URL('@/images/checkin_bg.jpg', import.meta.url).href,
+    checkInCircle: new URL('@/images/checkin_bg.jpg', import.meta.url).href,
+    checkInProcessing: new URL('@/images/checkin_bg.jpg', import.meta.url).href,
+    securityCircle: new URL('@/images/security_bg.jpg', import.meta.url).href,
+    synchronizingSecurity: new URL('@/images/security_bg.jpg', import.meta.url).href,
+    securityProcessing: new URL('@/images/security_bg.jpg', import.meta.url).href,
+    synchronizingLounge: new URL('@/images/lounge_bg.jpg', import.meta.url).href,
+    loungeCircle: new URL('@/images/lounge_bg.jpg', import.meta.url).href,
+    nowBoarding: new URL('@/images/boarding_bg.jpg', import.meta.url).href,
+    synchronizingBoarding: new URL('@/images/boarding_bg.jpg', import.meta.url).href,
+    boardingCircle: new URL('@/images/boarding_bg.jpg', import.meta.url).href,
+    boardingProcessing: new URL('@/images/boarding_bg.jpg', import.meta.url).href,
+    onboard: new URL('@/images/onboard_bg.jpg', import.meta.url).href,
+  }
+  return imageMap[state] || ''
+}
+
+// Watch for journey state changes and preload the next image
+watch(journeyState, (newState) => {
+  preloadImage(getNextImageForState(newState))
+}, { immediate: true })
+
 export function useFlightState() {
   return {
     flightStatus,
