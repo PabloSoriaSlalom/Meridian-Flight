@@ -646,6 +646,10 @@ watch(journeyState, (newState) => {
   preloadImage(getNextImageForState(newState))
 }, { immediate: true })
 
+// Preload logo images on init
+preloadImage(new URL('@/images/MS_logo.png', import.meta.url).href)
+preloadImage(new URL('@/images/MS_logoV.png', import.meta.url).href)
+
 export function useFlightState() {
   return {
     flightStatus,
